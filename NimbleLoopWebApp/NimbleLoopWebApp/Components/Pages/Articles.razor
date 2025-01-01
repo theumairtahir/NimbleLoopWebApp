@@ -1,0 +1,28 @@
+﻿@page "/articles"
+@using Microsoft.EntityFrameworkCore
+@using NimbleLoopWebApp.Data
+@using NimbleLoopWebApp.Domain
+@attribute [StreamRendering]
+@inject NimbleLoopDbContext dbContext
+
+<h3>Articles</h3>
+
+
+@foreach (var article in articles)
+{
+  <div>
+    <h4>@article.Title</h4>
+    <p>@article.MetaDescription</p>
+  </div>
+}
+
+@code {
+  private List<Article> articles = [];
+
+  protected async override Task OnInitializedAsync()
+  {
+    await base.OnInitializedAsync();
+    var articles = dbContext.Articles.ToList();
+  }
+
+}

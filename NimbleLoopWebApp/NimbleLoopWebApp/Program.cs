@@ -15,7 +15,6 @@ builder.Services.AddCascadingAuthenticationState( );
 
 builder.Services.AddScoped(sp =>
 {
-	var configuration = sp.GetRequiredService<IConfiguration>( );
 	var options = new DbContextOptionsBuilder<NimbleLoopDbContext>( ).UseMongoDB(builder.Configuration["DbConfig:ConnectionString"]!, builder.Configuration["DbConfig:DatabaseName"]!).Options;
 	return new NimbleLoopDbContext(options);
 });
