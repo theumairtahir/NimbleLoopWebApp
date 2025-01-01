@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35521.163 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NimbleLoopWebApp", "NimbleLoopWebApp\NimbleLoopWebApp\NimbleLoopWebApp.csproj", "{D810DB5C-714D-4455-B169-9C49CD095770}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NimbleLoopWebApp.Client", "NimbleLoopWebApp\NimbleLoopWebApp.Client\NimbleLoopWebApp.Client.csproj", "{1605A7BE-D7B1-4616-8E48-10B66563C13B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D810DB5C-714D-4455-B169-9C49CD095770}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D810DB5C-714D-4455-B169-9C49CD095770}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D810DB5C-714D-4455-B169-9C49CD095770}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D810DB5C-714D-4455-B169-9C49CD095770}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1605A7BE-D7B1-4616-8E48-10B66563C13B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1605A7BE-D7B1-4616-8E48-10B66563C13B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1605A7BE-D7B1-4616-8E48-10B66563C13B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1605A7BE-D7B1-4616-8E48-10B66563C13B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
