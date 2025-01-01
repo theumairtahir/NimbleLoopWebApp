@@ -43,4 +43,4 @@ app.MapRazorComponents<App>( )
 	.AddInteractiveWebAssemblyRenderMode( )
 	.AddAdditionalAssemblies(typeof(NimbleLoopWebApp.Client._Imports).Assembly);
 
-app.Run( );
+await app.RunAsync( );
