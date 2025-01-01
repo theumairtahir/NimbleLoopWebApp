@@ -1,0 +1,29 @@
+﻿@page "/authentication/{action}"
+@rendermode InteractiveWebAssembly
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@if (isLoaded)
+{
+  <RemoteAuthenticatorView Action="@Action" @rendermode="InteractiveWebAssembly" />
+}
+else
+{
+  <p>Performing @Action action...</p>
+}
+
+@code {
+  private bool isLoaded = false;
+
+  [Parameter]
+  public string? Action { get; set; }
+
+  protected override void OnAfterRender(bool firstRender)
+  {
+    base.OnAfterRender(firstRender);
+    if (firstRender)
+    {
+      isLoaded = true;
+      StateHasChanged();
+    }
+  }
+}
