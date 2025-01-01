@@ -1,5 +1,10 @@
-﻿namespace NimbleLoopWebApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using NimbleLoopWebApp.Domain;
 
-public class NimbleLoopDbContext
+namespace NimbleLoopWebApp.Data;
+
+public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options) : DbContext(options)
 {
+	public DbSet<Article> Articles { get; set; } = null!;
+	public DbSet<Editor> Editors { get; set; } = null!;
 }

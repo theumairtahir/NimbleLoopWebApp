@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using NimbleLoopWebApp.Components;
+using NimbleLoopWebApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,13 @@ builder.Services.AddRazorComponents( )
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
 builder.Services.AddCascadingAuthenticationState( );
+
+builder.Services.AddScoped(sp =>
+{
+	var configuration = sp.GetRequiredService<IConfiguration>( );
+	var options = new DbContextOptionsBuilder<NimbleLoopDbContext>( ).UseMongoDB(builder.Configuration["DbConfig:ConnectionString"]!, builder.Configuration["DbConfig:DatabaseName"]!).Options;
+	return new NimbleLoopDbContext(options);
+});
 
 var app = builder.Build( );
 
