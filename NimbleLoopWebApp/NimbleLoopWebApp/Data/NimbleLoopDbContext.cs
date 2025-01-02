@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 using MongoDB.EntityFrameworkCore.Extensions;
-using NimbleLoopWebApp.Domain;
+using NimbleLoop.Domain.Entities;
 using System.Security.Claims;
 
 namespace NimbleLoopWebApp.Data;
@@ -16,9 +16,19 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options) 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
-		modelBuilder.Entity<Article>( ).ToCollection("articles");
-		modelBuilder.Entity<Editor>( ).ToCollection("editors");
-		modelBuilder.Entity<Prospect>( ).ToCollection("prospects");
+		var articleCollection = modelBuilder.Entity<Article>( ).ToCollection("articles");
+		articleCollection.HasKey(x => x.Id);
+		articleCollection.Ignore(x => x.LastModified);
+		articleCollection.Property(x => x.Id).HasConversion<ObjectId>( );
+		articleCollection.HasIndex(x => x.Key).IsUnique( );
+		var editorsCollection = modelBuilder.Entity<Editor>( ).ToCollection("editors");
+		editorsCollection.HasKey(x => x.Id);
+		editorsCollection.Ignore(x => x.LastModified);
+		editorsCollection.Property(x => x.Id).HasConversion<ObjectId>( );
+		var prospectsCollection = modelBuilder.Entity<Prospect>( ).ToCollection("prospects");
+		prospectsCollection.HasKey(x => x.Id);
+		prospectsCollection.Ignore(x => x.LastModified);
+		prospectsCollection.Property(x => x.Id).HasConversion<ObjectId>( );
 	}
 
 	public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -27,7 +37,7 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options) 
 		{
 			if (e.Entity is BaseEntity entity)
 			{
-				entity.Id = ObjectId.GenerateNewId( );
+				entity.Id = ObjectId.GenerateNewId( ).ToString( );
 				entity.CreatedAt = DateTime.UtcNow;
 				entity.CreatedBy = string.IsNullOrEmpty(entity.CreatedBy) ? SYSTEM_USER : entity.CreatedBy;
 			}

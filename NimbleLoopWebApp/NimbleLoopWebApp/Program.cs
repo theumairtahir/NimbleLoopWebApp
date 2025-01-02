@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Identity.Web;
-using MongoDB.Bson;
+using NimbleLoop.Domain.Entities;
 using NimbleLoopWebApp.Client.ViewModels;
 using NimbleLoopWebApp.Components;
 using NimbleLoopWebApp.Data;
-using NimbleLoopWebApp.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,9 +51,9 @@ app.MapPost("api/contact", async (NimbleLoopDbContext dbContext, HomeContactView
 	var prospect = await dbContext.Prospects.FirstOrDefaultAsync(p => p.Email == model.Email);
 	prospect ??= new Prospect
 	{
-		CompanyName = model.CompanyName,
-		Email = model.Email,
-		Name = model.Name,
+		CompanyName = model.CompanyName?.Trim( ),
+		Email = model.Email.ToLower( ).Trim( ),
+		Name = model.Name.Trim( ),
 	};
 	prospect.Queries.Add(new Query
 	{
@@ -63,12 +63,13 @@ app.MapPost("api/contact", async (NimbleLoopDbContext dbContext, HomeContactView
 		Type = QueryType.ServiceInformation,
 		Timestamp = DateTime.UtcNow,
 	});
-	if (prospect.Id == ObjectId.Empty)
+	var isNew = string.IsNullOrEmpty(prospect.Id);
+	if (isNew)
 		await dbContext.Prospects.AddAsync(prospect);
 	else
 		dbContext.Prospects.Update(prospect);
 	await dbContext.SaveChangesAsync( );
-	return Results.Ok( );
+	return isNew ? Results.Created( ) : Results.Ok( );
 });
 app.MapRazorComponents<App>( )
 	.AddInteractiveWebAssemblyRenderMode( )

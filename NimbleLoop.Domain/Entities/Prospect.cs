@@ -1,4 +1,4 @@
-﻿namespace NimbleLoopWebApp.Domain;
+﻿namespace NimbleLoop.Domain.Entities;
 
 public class Prospect : BaseEntity
 {

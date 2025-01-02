@@ -1,9 +1,9 @@
-﻿namespace NimbleLoopWebApp.Domain;
+﻿namespace NimbleLoop.Domain.Entities;
 
 public class Article : BaseEntity
 {
 	public required string Title { get; set; }
-	public required string Content { get; set; }
+	public required string ContentMarkdown { get; set; } = null!;
 	public required string ImageUrl { get; set; }
 	public required string Key { get; set; }
 	public bool IsFeatured { get; set; }

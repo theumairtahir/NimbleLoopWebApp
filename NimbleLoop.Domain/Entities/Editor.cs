@@ -1,4 +1,4 @@
-﻿namespace NimbleLoopWebApp.Domain;
+﻿namespace NimbleLoop.Domain.Entities;
 
 public class Editor : BaseEntity
 {
@@ -7,5 +7,4 @@ public class Editor : BaseEntity
 	public string? Bio { get; set; }
 	public string? ImageUrl { get; set; }
 	public string? ImageAltText { get; set; }
-	public List<string> Tags { get; set; } = [ ];
 }
