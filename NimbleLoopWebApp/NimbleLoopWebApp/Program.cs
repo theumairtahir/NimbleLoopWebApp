@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Identity.Web;
 using NimbleLoop.Domain.Entities;
 using NimbleLoopWebApp.Client.ViewModels;
