@@ -1,4 +1,7 @@
 ﻿@page "/"
+@using NimbleLoopWebApp.Client.Components
+@using NimbleLoopWebApp.Client.ViewModels
+@using NimbleLoopWebApp.ViewModels
 @attribute [StreamRendering]
 
 <PageTitle>Home - @Constants.APP_NAME</PageTitle>
@@ -87,16 +90,69 @@
   </div>
 </div>
 <!--Stack Section:end-->
-@code {
-  private List<Service> services = new()
+<!--Articles Section:start-->
+<div class="my-5 container">
+  <h2 class="mb-4 text-center">Latest Articles</h2>
+  <div class="row">
+    @foreach (var article in articles)
     {
-        new Service("Application Development in .NET", "We build new applications using the latest .NET technologies."),
-        new Service("Application Re-engineering", "Modernize your legacy applications to improve user experience, performance and security."),
-        new Service("AI integration","Incorporate AI features into your applications for enhanced functionality."),
-        new Service("Strategic Roadmapping", "We analyze your product and provide the complete roadmap to create it in a best way."),
-        new Service("Azure Cloud", "Seamlessly migrate your applications to the Azure cloud platform."),
-        new Service("Dedicated Teams", "Get the resources you want, to develop and scale rapidly")
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <img src="@article.ImageUrl" class="card-img-top" alt="@article.Title" />
+          <div class="card-body">
+            <h5 class="card-title">@article.Title</h5>
+            <p class="card-text">@article.Summary</p>
+          </div>
+          <div class="card-footer">
+            <a href="@($"/articles/{article.Id}")" class="btn btn-primary">Read More</a>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+  <div class="text-center">
+    <a href="/articles" class="btn btn-secondary">View All</a>
+  </div>
+</div>
+<!--Articles Section:end-->
+<!--Contact Section:start-->
+<div class="my-5 container">
+  <h2 class="mb-4 text-center">Want to Work with us?</h2>
+  <HomeContactUs Services="services" />
+</div>
+<!--Contact Section:end-->
+@code {
+  private List<HomeServiceViewModel> services = new()
+    {
+        new HomeServiceViewModel("Application Development in .NET", "We build new applications using the latest .NET technologies."),
+        new HomeServiceViewModel("Application Re-engineering", "Modernize your legacy applications to improve user experience, performance and security."),
+        new HomeServiceViewModel("AI integration","Incorporate AI features into your applications for enhanced functionality."),
+        new HomeServiceViewModel("Strategic Roadmapping", "We analyze your product and provide the complete roadmap to create it in a best way."),
+        new HomeServiceViewModel("Azure Cloud", "Seamlessly migrate your applications to the Azure cloud platform."),
+        new HomeServiceViewModel("Dedicated Teams", "Get the resources you want, to develop and scale rapidly")
     };
-
-  public record Service(string Title, string Description);
+  private List<HomeArticleViewModel> articles = new()
+    {
+        new HomeArticleViewModel
+        (
+            "1",
+            "Understanding Blazor WebAssembly",
+            "An introduction to building web applications with Blazor WebAssembly.",
+            "https://placehold.co/600x400"
+        ),
+        new HomeArticleViewModel
+        (
+            "2",
+            "Getting Started with .NET 9",
+            "Explore the new features in .NET 9 and how to leverage them in your applications.",
+            "https://placehold.co/600x400"
+        ),
+        new HomeArticleViewModel
+        (
+            "3",
+            "Azure Cloud Migration Best Practices",
+            "Learn how to effectively migrate your applications to Azure Cloud.",
+            "https://placehold.co/600x400"
+        )
+    };
 }

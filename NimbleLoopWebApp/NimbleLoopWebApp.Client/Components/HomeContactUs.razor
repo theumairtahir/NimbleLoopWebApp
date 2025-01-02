@@ -1,0 +1,63 @@
+﻿@using NimbleLoopWebApp.Client.ViewModels
+@rendermode InteractiveWebAssembly
+
+<EditForm Model="contactModel" OnValidSubmit="HandleValidSubmit">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Name*</label>
+      <InputText class="form-control" @bind-Value="contactModel.Name" />
+      <ValidationMessage For="@(() => contactModel.Name)" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Email*</label>
+      <InputText type="email" class="form-control" @bind-Value="contactModel.Email" />
+      <ValidationMessage For="@(() => contactModel.Email)" />
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Company Name</label>
+    <InputText class="form-control" @bind-Value="contactModel.CompanyName" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Service Interested In*</label>
+    <InputSelect class="form-control" @bind-Value="contactModel.ServiceInterestedIn">
+      <option value="" disabled selected>Select a service</option>
+      @foreach (var service in Services)
+      {
+        <option value="@service.Title">@service.Title</option>
+      }
+    </InputSelect>
+    <ValidationMessage For="@(() => contactModel.ServiceInterestedIn)" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Budget</label>
+    <InputText class="form-control" @bind-Value="contactModel.Budget" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Message</label>
+    <InputTextArea class="form-control" @bind-Value="contactModel.Message" rows="5" />
+  </div>
+
+  <div class="text-center">
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
+</EditForm>
+
+@code {
+  private HomeContactViewModel contactModel = new();
+
+  [Parameter, EditorRequired]
+  public List<HomeServiceViewModel> Services { get; set; } = [];
+
+  private void HandleValidSubmit()
+  {
+    // TODO: Handle form submission logic
+  }
+}
