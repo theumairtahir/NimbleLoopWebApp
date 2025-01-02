@@ -16,7 +16,6 @@
   </div>
 </div>
 <!--Hero Section:end-->
-
 <!--About Section:start-->
 <div class="container">
   <div class="row align-items-center my-5 text-center">
@@ -27,3 +26,57 @@
   </div>
 </div>
 <!--About Section:end-->
+<!--Services Section:start-->
+<div class="my-5 container">
+  <h2 class="mb-4 text-center">What would you like to get done?</h2>
+  <div class="row">
+    @foreach (var service in services)
+    {
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+          <div class="card-body">
+            <h5 class="card-title">@service.Title</h5>
+            <p class="card-text">@service.Description</p>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+<!--Services Section:end-->
+@code {
+  private List<Service> services = new()
+    {
+        new Service
+        {
+            Title = "Application Development in .NET",
+            Description = "We build new applications using the latest .NET technologies."
+        },
+        new Service
+        {
+            Title = "Application Re-engineering",
+            Description = "Modernize your legacy applications to improve user experience, performance and security."
+        },
+        new Service
+        {
+            Title = "AI integration",
+            Description = "Incorporate AI features into your applications for enhanced functionality."
+        },
+        new Service
+        {
+            Title = "Strategic Roadmapping",
+            Description = "We analyze your product and provide the best documented solutions."
+        },
+        new Service
+        {
+            Title = "Azure Cloud",
+            Description = "Seamlessly migrate your applications to the Azure cloud platform."
+        }
+    };
+
+  public class Service
+  {
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+  }
+}
