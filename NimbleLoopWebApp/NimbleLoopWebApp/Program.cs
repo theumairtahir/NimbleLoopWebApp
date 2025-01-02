@@ -10,7 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents( )
 	.AddInteractiveWebAssemblyComponents( );
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-	.AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
+	.AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAdB2C"));
+
+builder.Services.AddAuthorization( );
+
 builder.Services.AddCascadingAuthenticationState( );
 
 builder.Services.AddScoped(sp =>
