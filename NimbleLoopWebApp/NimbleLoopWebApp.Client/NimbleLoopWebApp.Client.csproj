@@ -13,4 +13,8 @@
 		<PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="9.0.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\NimbleLoop.Domain\NimbleLoop.Domain.csproj" />
+	</ItemGroup>
+
 </Project>

@@ -1,0 +1,390 @@
+﻿@page "/articles/create/{ArticleId?}"
+@using Microsoft.AspNetCore.Authorization
+@using System.ComponentModel.DataAnnotations
+@using NimbleLoop.Domain.Entities
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveWebAssembly
+
+<AuthorizeView>
+  <NotAuthorized>
+    <p>@Constants.NOT_AUTH_MESSAGE</p>
+  </NotAuthorized>
+  <Authorized>
+    <h3>@(IsEditMode ? "Edit Article" : "Create New Article")</h3>
+    <!--Add/Edit Section: start-->
+    <EditForm Model="articleModel" OnValidSubmit="HandleValidSubmit" Context="articleContext">
+      <DataAnnotationsValidator />
+      <ValidationSummary />
+
+      <!-- Title -->
+      <div class="mb-3">
+        <label class="form-label">Title*</label>
+        <InputText class="form-control" @bind-Value="articleModel.Title" />
+        <ValidationMessage For="@(() => articleModel.Title)" />
+      </div>
+
+      <!-- Content -->
+      <div class="mb-3">
+        <label class="form-label">Content (HTML Markdown)*</label>
+        <InputTextArea class="form-control" @bind-Value="articleModel.Content" rows="8" />
+        <ValidationMessage For="@(() => articleModel.Content)" />
+      </div>
+
+      <!-- Image URL -->
+      <div class="mb-3">
+        <label class="form-label">Image URL*</label>
+        <InputText class="form-control" @bind-Value="articleModel.ImageUrl" />
+        <ValidationMessage For="@(() => articleModel.ImageUrl)" />
+      </div>
+
+      <!-- Image Alt Text -->
+      <div class="mb-3">
+        <label class="form-label">Image Alt Text</label>
+        <InputText class="form-control" @bind-Value="articleModel.ImageAltText" />
+      </div>
+
+      <!-- Key -->
+      <div class="mb-3">
+        <label class="form-label">Key*</label>
+        <InputText class="form-control" @bind-Value="articleModel.Key" />
+        <ValidationMessage For="@(() => articleModel.Key)" />
+      </div>
+
+      <!-- Is Featured -->
+      <div class="mb-3 form-check">
+        <InputCheckbox class="form-check-input" @bind-Value="articleModel.IsFeatured" />
+        <label class="form-check-label">Is Featured</label>
+      </div>
+
+      <!-- Tags -->
+      <div class="mb-3">
+        <label class="form-label">Tags (comma-separated)</label>
+        <InputText class="form-control" @bind-Value="tagsInput" />
+      </div>
+
+      <!-- Meta Title -->
+      <div class="mb-3">
+        <label class="form-label">Meta Title</label>
+        <InputText class="form-control" @bind-Value="articleModel.MetaTitle" />
+      </div>
+
+      <!-- Meta Description -->
+      <div class="mb-3">
+        <label class="form-label">Meta Description</label>
+        <InputTextArea class="form-control" @bind-Value="articleModel.MetaDescription" rows="3" />
+      </div>
+
+      <!-- Editor Selection Dropdown -->
+      <div class="mb-3">
+        <label class="form-label">Select Editor</label>
+        <InputSelect class="form-select" @bind-Value="selectedEditorId" @onchange="OnEditorSelected">
+          <option value="">-- Select an Editor --</option>
+          @foreach (var editor in editors)
+          {
+            <option value="@editor.Id">@editor.Name</option>
+          }
+        </InputSelect>
+      </div>
+
+      <!-- Display Selected Editor's Image -->
+      @if (selectedEditorId != string.Empty)
+      {
+        var selectedEditor = editors.FirstOrDefault(e => e.Id == selectedEditorId);
+        if (selectedEditor != null && !string.IsNullOrEmpty(selectedEditor.ImageUrl))
+        {
+          <div class="mb-3 text-center">
+            <img src="@selectedEditor.ImageUrl" alt="@selectedEditor.Name" class="img-thumbnail" style="max-width: 150px;" />
+          </div>
+        }
+      }
+
+      <!-- Editor Details -->
+      <div class="mb-3">
+        <label class="form-label">Editor Name*</label>
+        <InputText class="form-control" @bind-Value="articleModel.EditorName" required={!isEditorSelected} />
+        <ValidationMessage For="@(() => articleModel.EditorName)" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Editor Email*</label>
+        <InputText class="form-control" @bind-Value="articleModel.EditorEmail" required={!isEditorSelected} />
+        <ValidationMessage For="@(() => articleModel.EditorEmail)" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Editor Bio</label>
+        <InputTextArea class="form-control" @bind-Value="articleModel.EditorBio" rows="3" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Editor Image URL*</label>
+        <InputText class="form-control" @bind-Value="articleModel.EditorImageUrl" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Image Alt Text</label>
+        <InputText class="form-control" @bind-Value="articleModel.EditorImageAltText" />
+      </div>
+
+      <!-- Submit and Cancel Buttons -->
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary">@(IsEditMode ? "Update Article" : "Create Article")</button>
+        @if (IsEditMode)
+        {
+          <button type="button" class="btn btn-secondary ms-2" @onclick="CancelEdit">Cancel</button>
+        }
+      </div>
+    </EditForm>
+
+    <!-- Submission Message -->
+    @if (submissionMessage != null)
+    {
+      <div class="alert @submissionMessageClass mt-3" role="alert">
+        @submissionMessage
+      </div>
+    }
+    <!--Add/Edit Section: end-->
+  </Authorized>
+</AuthorizeView>
+
+@code {
+  [Parameter]
+  public string? ArticleId { get; set; }
+
+  private ArticleViewModel articleModel = new();
+  private string tagsInput = string.Empty;
+  private bool IsEditMode => !string.IsNullOrEmpty(ArticleId);
+  private string? submissionMessage = null;
+  private string submissionMessageClass = "alert-success";
+
+  private List<Editor> editors = new();
+  private string selectedEditorId = string.Empty;
+
+  [Inject]
+  private HttpClient HttpClient { get; set; } = default!;
+
+  [Inject]
+  private NavigationManager Navigation { get; set; } = default!;
+
+  [CascadingParameter]
+  private Task<AuthenticationState> authenticationStateTask { get; set; } = default!;
+
+  protected override async Task OnInitializedAsync()
+  {
+    var authState = await authenticationStateTask;
+    var user = authState.User;
+
+    if (user.Identity?.IsAuthenticated ?? false)
+    {
+      // Fetch editors from API
+      editors = await HttpClient.GetFromJsonAsync<List<Editor>>("api/editors") ?? new List<Editor>();
+    }
+
+    if (IsEditMode)
+    {
+      var response = await HttpClient.GetAsync($"api/articles/{ArticleId}");
+      if (response.IsSuccessStatusCode)
+      {
+        var article = await response.Content.ReadFromJsonAsync<Article>();
+        if (article != null)
+        {
+          articleModel = new ArticleViewModel
+            {
+              Title = article.Title,
+              Content = article.ContentMarkdown,
+              ImageUrl = article.ImageUrl,
+              ImageAltText = article.ImageAltText,
+              Key = article.Key,
+              IsFeatured = article.IsFeatured,
+              MetaTitle = article.MetaTitle,
+              MetaDescription = article.MetaDescription,
+              EditorName = article.Editor.Name,
+              EditorEmail = article.Editor.Email
+            };
+          tagsInput = string.Join(", ", article.Tags);
+
+          // If the article has an editor, set the selected editor
+          var assignedEditor = editors.FirstOrDefault(e => e.Name == article.Editor.Name && e.Email == article.Editor.Email);
+          if (assignedEditor != null)
+            selectedEditorId = assignedEditor.Id;
+        }
+        else
+        {
+          submissionMessage = "Article not found.";
+          submissionMessageClass = "alert-danger";
+        }
+      }
+      else
+      {
+        submissionMessage = "Failed to load the article.";
+        submissionMessageClass = "alert-danger";
+      }
+    }
+  }
+
+  private async Task HandleValidSubmit()
+  {
+    // Split tags by comma and trim whitespace
+    var tags = tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim()).ToList();
+
+    // Determine editor details
+    string editorName;
+    string editorEmail;
+    string? editorBio;
+    string? editorImageUrl;
+    string? editorImageAltText;
+
+    if (!string.IsNullOrEmpty(selectedEditorId))
+    {
+      var selectedEditor = editors.FirstOrDefault(e => e.Id == selectedEditorId);
+      if (selectedEditor != null)
+      {
+        editorName = selectedEditor.Name;
+        editorEmail = selectedEditor.Email;
+        editorBio = selectedEditor.Bio;
+        editorImageUrl = selectedEditor.ImageUrl;
+        editorImageAltText = selectedEditor.ImageAltText;
+      }
+      else
+      {
+        submissionMessage = "Selected editor not found.";
+        submissionMessageClass = "alert-danger";
+        return;
+      }
+    }
+    else
+    {
+      // Ensure manual editor details are provided
+      if (string.IsNullOrEmpty(articleModel.EditorName) || string.IsNullOrEmpty(articleModel.EditorEmail))
+      {
+        submissionMessage = "Editor Name and Email are required.";
+        submissionMessageClass = "alert-danger";
+        return;
+      }
+
+      editorName = articleModel.EditorName;
+      editorEmail = articleModel.EditorEmail;
+      editorBio = articleModel.EditorBio;
+      editorImageUrl = articleModel.EditorImageUrl;
+      editorImageAltText = articleModel.EditorImageAltText;
+    }
+
+    var article = new Article
+      {
+        Title = articleModel.Title,
+        ContentMarkdown = articleModel.Content,
+        ImageUrl = articleModel.ImageUrl,
+        ImageAltText = articleModel.ImageAltText,
+        Key = articleModel.Key,
+        IsFeatured = articleModel.IsFeatured,
+        Tags = tags,
+        MetaTitle = articleModel.MetaTitle,
+        MetaDescription = articleModel.MetaDescription,
+        Editor = new Editor
+        {
+          Id = selectedEditorId,
+          Name = editorName,
+          Email = editorEmail,
+          Bio = editorBio,
+          ImageUrl = editorImageUrl,
+          ImageAltText = editorImageAltText
+        }
+      };
+
+    HttpResponseMessage response;
+
+    if (IsEditMode)
+    {
+      response = await HttpClient.PutAsJsonAsync($"api/articles/{ArticleId}", article);
+    }
+    else
+    {
+      response = await HttpClient.PostAsJsonAsync("api/articles", article);
+    }
+
+    if (response.IsSuccessStatusCode)
+    {
+      submissionMessage = IsEditMode ? "Article updated successfully!" : "Article created successfully!";
+      submissionMessageClass = "alert-success";
+
+      // Optionally, navigate back to the articles list after a short delay
+      await Task.Delay(2000);
+      Navigation.NavigateTo("/articles");
+    }
+    else
+    {
+      submissionMessage = "An error occurred while submitting the article.";
+      submissionMessageClass = "alert-danger";
+    }
+  }
+
+  private void CancelEdit()
+  {
+    Navigation.NavigateTo("/articles");
+  }
+
+  private void OnEditorSelected(ChangeEventArgs e)
+  {
+    selectedEditorId = e.Value?.ToString() ?? string.Empty;
+    if (!string.IsNullOrEmpty(selectedEditorId))
+    {
+      var selectedEditor = editors.FirstOrDefault(ed => ed.Id == selectedEditorId);
+      if (selectedEditor != null)
+      {
+        articleModel.EditorName = selectedEditor.Name;
+        articleModel.EditorEmail = selectedEditor.Email;
+        articleModel.EditorBio = selectedEditor.Bio;
+        articleModel.EditorImageUrl = selectedEditor.ImageUrl;
+        articleModel.EditorImageAltText = selectedEditor.ImageAltText;
+        articleModel.EditorId = selectedEditor.Id;
+      }
+    }
+    else
+    {
+      articleModel.EditorName = string.Empty;
+      articleModel.EditorEmail = string.Empty;
+      articleModel.EditorId = string.Empty;
+      articleModel.EditorBio = string.Empty;
+      articleModel.EditorImageUrl = string.Empty;
+      articleModel.EditorImageAltText = string.Empty;
+    }
+  }
+
+  public class ArticleViewModel
+  {
+    [Required]
+    public string Title { get; set; } = string.Empty;
+
+    [Required]
+    public string Content { get; set; } = string.Empty;
+
+    [Required]
+    [Url]
+    public string ImageUrl { get; set; } = string.Empty;
+
+    [Required]
+    public string Key { get; set; } = string.Empty;
+
+    public bool IsFeatured { get; set; }
+
+    public string? ImageAltText { get; set; }
+
+    public string? MetaTitle { get; set; }
+
+    public string? MetaDescription { get; set; }
+
+    // Editor Details
+    [Required(ErrorMessage = "Editor Name is required.")]
+    public string EditorName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Editor Email is required.")]
+    [EmailAddress(ErrorMessage = "Invalid Email Address.")]
+    public string EditorEmail { get; set; } = string.Empty;
+    public string? EditorBio { get; set; } = string.Empty;
+    public string? EditorImageUrl { get; set; } = string.Empty;
+    public string? EditorImageAltText { get; set; } = string.Empty;
+    public string EditorId { get; set; } = string.Empty;
+  }
+}
