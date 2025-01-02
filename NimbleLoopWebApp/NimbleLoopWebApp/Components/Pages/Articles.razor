@@ -5,24 +5,47 @@
 @attribute [StreamRendering]
 @inject NimbleLoopDbContext dbContext
 
-<h3>Articles</h3>
-
-
-@foreach (var article in articles)
-{
-  <div>
-    <h4>@article.Title</h4>
-    <p>@article.MetaDescription</p>
+<!--Hero section:start-->
+<div class="my-5 container">
+  <div class="text-center">
+    <h1>Explore Our Insights</h1>
+    <p>Stay updated with the latest articles and insights from NimbleLoop.</p>
   </div>
-}
-
+  <div class="d-flex justify-content-center mt-4">
+    <div class="input-group w-50">
+      <input type="text" class="form-control" placeholder="Search articles..." @bind-value="searchTerm" @bind-value:event="oninput" @bind-value:after="FilterArticles" />
+      <select class="form-select" @bind="selectedCategory" @bind:after="FilterArticles">
+        <option value="">All Categories</option>
+        @foreach (var category in categories)
+        {
+          <option value="@category">@category</option>
+        }
+      </select>
+    </div>
+  </div>
+</div>
+<!--Hero section:end-->
 @code {
-  private List<Article> articles = [];
+  private List<Article> articles = new();
+  private List<Article> filteredArticles = new();
+  private List<string> categories = new();
+  private string searchTerm = string.Empty;
+  private string selectedCategory = string.Empty;
 
   protected async override Task OnInitializedAsync()
   {
     await base.OnInitializedAsync();
-    var articles = dbContext.Articles.ToList();
+    articles = await dbContext.Articles.ToListAsync();
+    filteredArticles = articles;
+    categories = articles.SelectMany(a => a.Tags).Distinct().ToList();
+  }
+
+  private void FilterArticles()
+  {
+    filteredArticles = articles
+        .Where(a => (string.IsNullOrEmpty(searchTerm) || a.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
+                    (string.IsNullOrEmpty(selectedCategory) || a.Tags.Contains(selectedCategory)))
+        .ToList();
   }
 
 }
