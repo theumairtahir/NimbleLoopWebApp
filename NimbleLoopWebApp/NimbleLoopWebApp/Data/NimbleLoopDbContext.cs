@@ -29,6 +29,7 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options) 
 		prospectsCollection.HasKey(x => x.Id);
 		prospectsCollection.Ignore(x => x.LastModified);
 		prospectsCollection.Property(x => x.Id).HasConversion<ObjectId>( );
+		prospectsCollection.HasIndex(x => x.Email).IsUnique( );
 	}
 
 	public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

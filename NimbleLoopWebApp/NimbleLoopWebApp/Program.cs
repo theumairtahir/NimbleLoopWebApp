@@ -48,7 +48,7 @@ app.UseAuthorization( );
 
 app.MapPost("api/contact", async (NimbleLoopDbContext dbContext, HomeContactViewModel model) =>
 {
-	var prospect = await dbContext.Prospects.FirstOrDefaultAsync(p => p.Email == model.Email);
+	var prospect = await dbContext.Prospects.FirstOrDefaultAsync(p => p.Email == model.Email.ToLower( ).Trim( ));
 	prospect ??= new Prospect
 	{
 		CompanyName = model.CompanyName?.Trim( ),
