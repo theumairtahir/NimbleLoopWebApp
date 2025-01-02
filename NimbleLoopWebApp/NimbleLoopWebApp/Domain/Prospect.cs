@@ -20,5 +20,5 @@ public class Query
 
 public enum QueryType
 {
-	Customer = 1
+	ServiceInformation = 1
 }

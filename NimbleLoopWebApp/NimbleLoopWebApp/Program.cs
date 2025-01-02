@@ -60,7 +60,7 @@ app.MapPost("api/contact", async (NimbleLoopDbContext dbContext, HomeContactView
 		Budget = model.Budget,
 		Message = model.Message,
 		ServiceInterestedIn = model.ServiceInterestedIn,
-		Type = QueryType.Customer,
+		Type = QueryType.ServiceInformation,
 		Timestamp = DateTime.UtcNow,
 	});
 	if (prospect.Id == ObjectId.Empty)
