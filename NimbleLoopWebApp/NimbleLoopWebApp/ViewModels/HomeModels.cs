@@ -2,5 +2,5 @@
 
 namespace NimbleLoopWebApp.ViewModels;
 
-public record HomeArticleViewModel(string Id, string Title, string Summary, string ImageUrl);
+public record HomeArticleViewModel(string Key, string Title, string Summary, string ImageUrl);
 

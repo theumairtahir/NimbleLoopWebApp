@@ -140,18 +140,7 @@
   <div class="row">
     @foreach (var article in articles)
     {
-      <div class="col-md-4 mb-4">
-        <div class="card h-100">
-          <img src="@article.ImageUrl" class="card-img-top" alt="@article.Title" />
-          <div class="card-body">
-            <h5 class="card-title">@article.Title</h5>
-            <p class="card-text">@article.Summary</p>
-          </div>
-          <div class="card-footer">
-            <a href="@($"/articles/{article.Id}")" class="btn btn-primary">Read More</a>
-          </div>
-        </div>
-      </div>
+      <ArticleTile ImageUrl="@article.ImageUrl" Key="@article.Key" Summary="@article.Summary" Title="@article.Title" />
     }
   </div>
   <div class="text-center">

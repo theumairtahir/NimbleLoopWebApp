@@ -25,9 +25,32 @@
   </div>
 </div>
 <!--Hero section:end-->
+<!--Featured section:start-->
+<div class="my-5 container">
+  <h2 class="mb-4 text-center">Featured Articles</h2>
+  <div class="row">
+    @foreach (var article in featuredArticles)
+    {
+      <ArticleTile ImageUrl="@article.ImageUrl" Key="@article.Key" Summary="@article.MetaDescription" Title="@article.MetaTitle" />
+    }
+  </div>
+</div>
+<!--Featured section:end-->
+<!--Articles list section:start-->
+<div class="my-5 container">
+  <h2 class="mb-4 text-center">All Articles</h2>
+  <div class="row">
+    @foreach (var article in filteredArticles)
+    {
+      <ArticleTile ImageUrl="@article.ImageUrl" Key="@article.Key" Summary="@article.MetaDescription" Title="@article.MetaTitle" />
+    }
+  </div>
+</div>
+<!--Articles list section:end-->
 @code {
   private List<Article> articles = new();
   private List<Article> filteredArticles = new();
+  private List<Article> featuredArticles = new();
   private List<string> categories = new();
   private string searchTerm = string.Empty;
   private string selectedCategory = string.Empty;
@@ -35,8 +58,9 @@
   protected async override Task OnInitializedAsync()
   {
     await base.OnInitializedAsync();
-    articles = await dbContext.Articles.ToListAsync();
+    articles = await dbContext.Articles.OrderByDescending(x => x.CreatedAt).ToListAsync();
     filteredArticles = articles;
+    featuredArticles = articles.Where(a => a.IsFeatured).ToList();
     categories = articles.SelectMany(a => a.Tags).Distinct().ToList();
   }
 
@@ -47,5 +71,4 @@
                     (string.IsNullOrEmpty(selectedCategory) || a.Tags.Contains(selectedCategory)))
         .ToList();
   }
-
 }

@@ -1,0 +1,22 @@
+﻿<div class="col-md-3 mb-4">
+  <div class="card h-100">
+    <img src="@ImageUrl" class="card-img-top" alt="@Title" />
+    <div class="card-body">
+      <h5 class="card-title">@Title</h5>
+      <p class="card-text">@Summary</p>
+    </div>
+    <div class="card-footer">
+      <a href="@($"/articles/{Key}")" class="btn btn-primary">Read More</a>
+    </div>
+  </div>
+</div>
+@code {
+  [Parameter, EditorRequired]
+  public string Key { get; set; } = null!;
+  [Parameter, EditorRequired]
+  public string ImageUrl { get; set; } = null!;
+  [Parameter, EditorRequired]
+  public string Title { get; set; } = null!;
+  [Parameter, EditorRequired]
+  public string Summary { get; set; } = null!;
+}
