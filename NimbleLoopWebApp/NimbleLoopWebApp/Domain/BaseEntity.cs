@@ -6,7 +6,7 @@ namespace NimbleLoopWebApp.Domain;
 public abstract class BaseEntity
 {
 	[BsonId]
-	public ObjectId Id { get; set; } = ObjectId.GenerateNewId( );
+	public ObjectId Id { get; set; }
 	public DateTime CreatedAt { get; set; }
 	public DateTime? ModifiedAt { get; set; }
 	public string CreatedBy { get; set; } = null!;

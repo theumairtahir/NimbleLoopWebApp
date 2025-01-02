@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using MongoDB.Bson;
+using NimbleLoopWebApp.Client.ViewModels;
 using NimbleLoopWebApp.Components;
 using NimbleLoopWebApp.Data;
+using NimbleLoopWebApp.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents( )
 	.AddInteractiveWebAssemblyComponents( );
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-	.AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAdB2C"));
-
+	.AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
 builder.Services.AddAuthorization( );
 
 builder.Services.AddCascadingAuthenticationState( );
@@ -43,6 +45,31 @@ app.UseHttpsRedirection( );
 app.UseAntiforgery( );
 app.MapStaticAssets( );
 app.UseAuthorization( );
+
+app.MapPost("api/contact", async (NimbleLoopDbContext dbContext, HomeContactViewModel model) =>
+{
+	var prospect = await dbContext.Prospects.FirstOrDefaultAsync(p => p.Email == model.Email);
+	prospect ??= new Prospect
+	{
+		CompanyName = model.CompanyName,
+		Email = model.Email,
+		Name = model.Name,
+	};
+	prospect.Queries.Add(new Query
+	{
+		Budget = model.Budget,
+		Message = model.Message,
+		ServiceInterestedIn = model.ServiceInterestedIn,
+		Type = QueryType.Customer,
+		Timestamp = DateTime.UtcNow,
+	});
+	if (prospect.Id == ObjectId.Empty)
+		await dbContext.Prospects.AddAsync(prospect);
+	else
+		dbContext.Prospects.Update(prospect);
+	await dbContext.SaveChangesAsync( );
+	return Results.Ok( );
+});
 app.MapRazorComponents<App>( )
 	.AddInteractiveWebAssemblyRenderMode( )
 	.AddAdditionalAssemblies(typeof(NimbleLoopWebApp.Client._Imports).Assembly);

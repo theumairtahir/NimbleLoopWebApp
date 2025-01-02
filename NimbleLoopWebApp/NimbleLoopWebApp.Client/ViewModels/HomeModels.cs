@@ -15,7 +15,8 @@ public class HomeContactViewModel
 	[Required]
 	public string ServiceInterestedIn { get; set; } = string.Empty;
 
-	public string? Budget { get; set; }
+	[Range(0, int.MaxValue)]
+	public int? Budget { get; set; }
 
 	public string? Message { get; set; }
 }
