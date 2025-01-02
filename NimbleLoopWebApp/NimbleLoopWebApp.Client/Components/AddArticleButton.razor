@@ -1,0 +1,17 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveWebAssembly
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+  <Authorized>
+    <div class="mt-4 text-center">
+      <button class="btn btn-success" @onclick="NavigateToAddArticle">Create New</button>
+    </div>
+  </Authorized>
+</AuthorizeView>
+@code {
+  private void NavigateToAddArticle()
+  {
+    Navigation.NavigateTo("/articles/create");
+  }
+}
