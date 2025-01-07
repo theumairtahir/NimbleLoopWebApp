@@ -228,7 +228,7 @@
   {
     // Split tags by comma and trim whitespace
     var tags = tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(t => t.Trim()).ToList();
+                        .Select(t => t.Trim().ToLower()).ToList();
 
     // Determine editor details
     string editorName;
@@ -278,7 +278,7 @@
         ContentMarkdown = articleModel.Content,
         ImageUrl = articleModel.ImageUrl,
         ImageAltText = articleModel.ImageAltText,
-        Key = articleModel.Key,
+        Key = articleModel.Key.ToLower().Trim().Replace(' ', '_'),
         IsFeatured = articleModel.IsFeatured,
         Tags = tags,
         MetaTitle = articleModel.MetaTitle,
