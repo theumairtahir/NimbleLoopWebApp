@@ -79,7 +79,7 @@
       <!-- Editor Selection Dropdown -->
       <div class="mb-3">
         <label class="form-label">Select Editor</label>
-        <InputSelect class="form-select" @bind-Value="selectedEditorId" @onchange="OnEditorSelected">
+        <InputSelect class="form-select" @bind-Value="selectedEditorId" @bind-Value:after="OnEditorSelected">
           <option value="">-- Select an Editor --</option>
           @foreach (var editor in editors)
           {
@@ -103,13 +103,13 @@
       <!-- Editor Details -->
       <div class="mb-3">
         <label class="form-label">Editor Name*</label>
-        <InputText class="form-control" @bind-Value="articleModel.EditorName" required={!isEditorSelected} />
+        <InputText class="form-control" @bind-Value="articleModel.EditorName" />
         <ValidationMessage For="@(() => articleModel.EditorName)" />
       </div>
 
       <div class="mb-3">
         <label class="form-label">Editor Email*</label>
-        <InputText class="form-control" @bind-Value="articleModel.EditorEmail" required={!isEditorSelected} />
+        <InputText class="form-control" @bind-Value="articleModel.EditorEmail" />
         <ValidationMessage For="@(() => articleModel.EditorEmail)" />
       </div>
 
@@ -201,14 +201,14 @@
               MetaTitle = article.MetaTitle,
               MetaDescription = article.MetaDescription,
               EditorName = article.Editor.Name,
-              EditorEmail = article.Editor.Email
+              EditorEmail = article.Editor.Email,
+              EditorBio = article.Editor.Bio,
+              EditorId = article.Editor.Id,
+              EditorImageAltText = article.Editor.ImageAltText,
+              EditorImageUrl = article.Editor.ImageUrl
             };
           tagsInput = string.Join(", ", article.Tags);
-
-          // If the article has an editor, set the selected editor
-          var assignedEditor = editors.FirstOrDefault(e => e.Name == article.Editor.Name && e.Email == article.Editor.Email);
-          if (assignedEditor != null)
-            selectedEditorId = assignedEditor.Id;
+          selectedEditorId = article.Editor.Id;
         }
         else
         {
@@ -286,15 +286,15 @@
         Editor = new Editor
         {
           Id = selectedEditorId,
-          Name = editorName,
-          Email = editorEmail,
-          Bio = editorBio,
-          ImageUrl = editorImageUrl,
-          ImageAltText = editorImageAltText
+          Name = articleModel.EditorName,
+          Email = articleModel.EditorEmail,
+          Bio = articleModel.EditorBio,
+          ImageUrl = articleModel.ImageUrl,
+          ImageAltText = articleModel.ImageAltText
         }
       };
 
-    var  response = await HttpClient.PostAsJsonAsync("api/articles", article);
+    var response = await HttpClient.PostAsJsonAsync("api/articles", article);
 
     if (response.IsSuccessStatusCode)
     {
@@ -317,9 +317,8 @@
     Navigation.NavigateTo("/articles");
   }
 
-  private void OnEditorSelected(ChangeEventArgs e)
+  private void OnEditorSelected()
   {
-    selectedEditorId = e.Value?.ToString() ?? string.Empty;
     if (!string.IsNullOrEmpty(selectedEditorId))
     {
       var selectedEditor = editors.FirstOrDefault(ed => ed.Id == selectedEditorId);

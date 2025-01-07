@@ -85,6 +85,9 @@ app.MapPost("api/articles", async (NimbleLoopDbContext dbContext, [FromBody] Art
 	return isNew ? Results.Created( ) : Results.Ok( );
 }).RequireAuthorization( );
 
+app.MapGet("api/editors", async (NimbleLoopDbContext dbContext) => Results.Ok(await dbContext.Editors.ToListAsync( )))
+	.RequireAuthorization( );
+
 app.MapRazorComponents<App>( )
 	.AddInteractiveWebAssemblyRenderMode( )
 	.AddAdditionalAssemblies(typeof(NimbleLoopWebApp.Client._Imports).Assembly);

@@ -38,7 +38,15 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options) 
 		{
 			if (e.Entity is BaseEntity entity)
 			{
-				entity.Id = ObjectId.GenerateNewId( ).ToString( );
+				if (string.IsNullOrEmpty(entity.Id) || !ObjectId.TryParse(entity.Id, out var id) || id == ObjectId.Empty)
+				{
+					entity.Id = ObjectId.GenerateNewId( ).ToString( );
+				}
+				else
+				{
+					e.State = EntityState.Modified;
+					return;
+				}
 				entity.CreatedAt = DateTime.UtcNow;
 				entity.CreatedBy = string.IsNullOrEmpty(entity.CreatedBy) ? SYSTEM_USER : entity.CreatedBy;
 			}
@@ -48,6 +56,8 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options) 
 		{
 			if (e.Entity is BaseEntity entity)
 			{
+				e.Properties.First(p => p.Metadata.Name == nameof(BaseEntity.CreatedAt)).IsModified = false;
+				e.Properties.First(p => p.Metadata.Name == nameof(BaseEntity.CreatedBy)).IsModified = false;
 				entity.ModifiedAt = DateTime.UtcNow;
 				entity.ModifiedBy = string.IsNullOrEmpty(entity.ModifiedBy) ? SYSTEM_USER : entity.ModifiedBy;
 			}
