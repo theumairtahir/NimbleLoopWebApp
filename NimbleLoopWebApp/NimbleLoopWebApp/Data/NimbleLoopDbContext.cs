@@ -34,7 +34,7 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options) 
 
 	public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 	{
-		base.ChangeTracker.Entries( ).Where(e => e.State == EntityState.Added).ToList( ).ForEach(e =>
+		ChangeTracker.Entries( ).Where(e => e.State == EntityState.Added).ToList( ).ForEach(e =>
 		{
 			if (e.Entity is BaseEntity entity)
 			{
@@ -58,7 +58,7 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options) 
 
 	public async Task<int> SaveChangesAsync(ClaimsPrincipal user, CancellationToken cancellationToken = default)
 	{
-		base.ChangeTracker.Entries( ).Where(e => e.State == EntityState.Added).ToList( ).ForEach(e =>
+		ChangeTracker.Entries( ).Where(e => e.State == EntityState.Added).ToList( ).ForEach(e =>
 		{
 			if (e.Entity is BaseEntity entity)
 				entity.CreatedBy = user is { Identity.IsAuthenticated: true } ? user.FindFirst(ClaimTypes.NameIdentifier)?.Value! : SYSTEM_USER;

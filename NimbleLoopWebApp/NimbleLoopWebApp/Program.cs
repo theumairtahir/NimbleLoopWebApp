@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using NimbleLoop.Domain.Entities;
 using NimbleLoopWebApp.Client.ViewModels;
 using NimbleLoopWebApp.Components;
 using NimbleLoopWebApp.Data;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +47,7 @@ app.UseAntiforgery( );
 app.MapStaticAssets( );
 app.UseAuthorization( );
 
-app.MapPost("api/contact", async (NimbleLoopDbContext dbContext, HomeContactViewModel model) =>
+app.MapPost("api/contact", async (NimbleLoopDbContext dbContext, [FromBody] HomeContactViewModel model) =>
 {
 	var prospect = await dbContext.Prospects.FirstOrDefaultAsync(p => p.Email == model.Email.ToLower( ).Trim( ));
 	prospect ??= new Prospect
@@ -70,6 +72,19 @@ app.MapPost("api/contact", async (NimbleLoopDbContext dbContext, HomeContactView
 	await dbContext.SaveChangesAsync( );
 	return isNew ? Results.Created( ) : Results.Ok( );
 });
+
+app.MapPost("api/articles", async (NimbleLoopDbContext dbContext, [FromBody] Article article, ClaimsPrincipal User) =>
+{
+	var isNew = string.IsNullOrEmpty(article.Id);
+
+	if (isNew)
+		await dbContext.Articles.AddAsync(article);
+	else
+		dbContext.Articles.Update(article);
+	await dbContext.SaveChangesAsync(User);
+	return isNew ? Results.Created( ) : Results.Ok( );
+}).RequireAuthorization( );
+
 app.MapRazorComponents<App>( )
 	.AddInteractiveWebAssemblyRenderMode( )
 	.AddAdditionalAssemblies(typeof(NimbleLoopWebApp.Client._Imports).Assembly);
