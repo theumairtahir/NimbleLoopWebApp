@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NimbleLoopWebApp.Client.Extensions;
@@ -17,5 +18,12 @@ public static class TransformationExtensions
 		value = value.Substring(0, value.Length <= 45 ? value.Length : 45).Trim( );
 		value = Regex.Replace(value, @"\s", "-");
 		return value;
+	}
+
+	public static string ToTitleCase(this string value)
+	{
+		if (string.IsNullOrEmpty(value))
+			return string.Empty;
+		return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value.ToLowerInvariant( ));
 	}
 }

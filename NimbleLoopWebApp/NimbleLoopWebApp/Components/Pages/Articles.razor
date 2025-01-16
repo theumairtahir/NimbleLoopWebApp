@@ -11,18 +11,7 @@
     <h1>Explore Our Insights</h1>
     <p>Stay updated with the latest articles and insights from NimbleLoop.</p>
   </div>
-  <div class="d-flex justify-content-center mt-4">
-    <div class="input-group w-50">
-      <input type="text" class="form-control" placeholder="Search articles..." @bind-value="searchTerm" @bind-value:event="oninput" @bind-value:after="FilterArticles" />
-      <select class="form-select" @bind="selectedCategory" @bind:after="FilterArticles">
-        <option value="">All Categories</option>
-        @foreach (var category in categories)
-        {
-          <option value="@category">@category</option>
-        }
-      </select>
-    </div>
-  </div>
+  <ArticleSearchbox SearchTerm="@SearchTerm" SelectedCategory="@SelectedCategory" />
   <AddArticleButton />
 </div>
 <!--Hero section:end-->
@@ -49,6 +38,11 @@
 </div>
 <!--Articles list section:end-->
 @code {
+  [SupplyParameterFromQuery(Name = "searchTerm")]
+  public string? SearchTerm { get; set; }
+  [SupplyParameterFromQuery(Name = "selectedCategory")]
+  public string? SelectedCategory { get; set; }
+
   private List<Article> articles = new();
   private List<Article> filteredArticles = new();
   private List<Article> featuredArticles = new();

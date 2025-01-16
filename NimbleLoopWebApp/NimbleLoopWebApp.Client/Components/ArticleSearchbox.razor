@@ -1,0 +1,43 @@
+﻿@using System.Text
+@rendermode InteractiveWebAssembly
+@inject HttpClient HttpClient
+@inject NavigationManager Navigator
+
+@if (categories is not null)
+{
+  <div class="d-flex justify-content-center mt-4">
+    <div class="input-group w-50">
+      <input type="text" class="form-control" placeholder="Search articles..." @bind-value="SearchTerm" @bind-value:event="oninput" @bind-value:after="FilterArticles" />
+      <select class="form-select" @bind="SelectedCategory" @bind:after="FilterArticles">
+        <option value="">All Categories</option>
+        @foreach (var category in categories)
+        {
+          <option value="@category">@category.ToTitleCase()</option>
+        }
+      </select>
+    </div>
+  </div>
+}
+
+@code {
+  [Parameter]
+  public string? SearchTerm { get; set; }
+  [Parameter]
+  public string? SelectedCategory { get; set; }
+  private List<string> categories = null!;
+
+  protected async override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      categories = await HttpClient.GetFromJsonAsync<List<string>>("api/categories") ?? [];
+      StateHasChanged();
+    }
+    await base.OnAfterRenderAsync(firstRender);
+  }
+
+  private void FilterArticles()
+  {
+    Navigator.NavigateTo($"/articles?searchTerm={SearchTerm}&category={SelectedCategory}");
+  }
+}

@@ -105,6 +105,12 @@ app.MapGet("api/validate-unique-key/{key}", async (NimbleLoopDbContext dbContext
 app.MapGet("api/editors", async (NimbleLoopDbContext dbContext) => Results.Ok(await dbContext.Editors.ToListAsync( )))
 	.RequireAuthorization( );
 
+app.MapGet("api/categories", async (NimbleLoopDbContext dbContext) =>
+{
+	var tags = await dbContext.Articles.Select(a => a.Tags).ToListAsync( );
+	return Results.Ok(tags.SelectMany(t => t).Distinct( ));
+});
+
 app.MapRazorComponents<App>( )
 	.AddInteractiveWebAssemblyRenderMode( )
 	.AddAdditionalAssemblies(typeof(NimbleLoopWebApp.Client._Imports).Assembly);
