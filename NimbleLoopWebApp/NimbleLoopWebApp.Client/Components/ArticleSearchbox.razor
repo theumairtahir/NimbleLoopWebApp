@@ -7,7 +7,7 @@
 {
   <div class="d-flex justify-content-center mt-4">
     <div class="input-group w-50">
-      <input type="text" class="form-control" placeholder="Search articles..." @bind-value="SearchTerm" @bind-value:event="oninput" @bind-value:after="FilterArticles" />
+      <input type="text" class="form-control" placeholder="Search articles..." @bind-value="SearchTerm" @bind-value:event="oninput" @bind-value:after="DeferredFilterArticles" />
       <select class="form-select" @bind="SelectedCategory" @bind:after="FilterArticles">
         <option value="">All Categories</option>
         @foreach (var category in categories)
@@ -25,6 +25,7 @@
   [Parameter]
   public string? SelectedCategory { get; set; }
   private List<string> categories = null!;
+  private CancellationTokenSource? cancellationTokenSource;
 
   protected async override Task OnAfterRenderAsync(bool firstRender)
   {
@@ -38,6 +39,22 @@
 
   private void FilterArticles()
   {
-    Navigator.NavigateTo($"/articles?searchTerm={SearchTerm}&category={SelectedCategory}");
+    if (string.IsNullOrWhiteSpace(SearchTerm) && string.IsNullOrWhiteSpace(SelectedCategory))
+      Navigator.NavigateTo($"/articles");
+    else if (string.IsNullOrWhiteSpace(SearchTerm))
+      Navigator.NavigateTo($"/articles?category={SelectedCategory}");
+    else if (string.IsNullOrWhiteSpace(SelectedCategory))
+      Navigator.NavigateTo($"/articles?query={SearchTerm}");
+    else
+      Navigator.NavigateTo($"/articles?query={SearchTerm}&category={SelectedCategory}");
   }
+
+  private void DeferredFilterArticles()
+  {
+    cancellationTokenSource?.Cancel();
+    cancellationTokenSource = new CancellationTokenSource();
+    var token = cancellationTokenSource.Token;
+    Task.Delay(500, token).ContinueWith(_ => FilterArticles(), token);
+  }
+
 }

@@ -2,6 +2,7 @@
 @using Microsoft.EntityFrameworkCore
 @using NimbleLoop.Domain.Entities
 @using NimbleLoopWebApp.Data
+@using NimbleLoop.Domain.Queries
 @attribute [StreamRendering]
 @inject NimbleLoopDbContext dbContext
 
@@ -38,32 +39,28 @@
 </div>
 <!--Articles list section:end-->
 @code {
-  [SupplyParameterFromQuery(Name = "searchTerm")]
+  [SupplyParameterFromQuery(Name = "query")]
   public string? SearchTerm { get; set; }
-  [SupplyParameterFromQuery(Name = "selectedCategory")]
+  [SupplyParameterFromQuery(Name = "category")]
   public string? SelectedCategory { get; set; }
 
-  private List<Article> articles = new();
+  private IQueryable<Article> articles = null!;
   private List<Article> filteredArticles = new();
   private List<Article> featuredArticles = new();
-  private List<string> categories = new();
-  private string searchTerm = string.Empty;
-  private string selectedCategory = string.Empty;
 
   protected async override Task OnInitializedAsync()
   {
     await base.OnInitializedAsync();
-    articles = await dbContext.Articles.OrderByDescending(x => x.CreatedAt).ToListAsync();
-    filteredArticles = articles;
-    featuredArticles = articles.Where(a => a.IsFeatured).ToList();
-    categories = articles.SelectMany(a => a.Tags).Distinct().ToList();
-  }
-
-  private void FilterArticles()
-  {
-    filteredArticles = articles
-        .Where(a => (string.IsNullOrEmpty(searchTerm) || a.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
-                    (string.IsNullOrEmpty(selectedCategory) || a.Tags.Contains(selectedCategory)))
-        .ToList();
+    featuredArticles = await dbContext.Articles.GetFeaturedArticles(4).ToListAsync();
+    articles = dbContext.Articles.GetArticles();
+    if (!string.IsNullOrEmpty(SelectedCategory))
+    {
+      articles = articles.Where(x => x.Tags.Contains(SelectedCategory));
+    }
+    if (!string.IsNullOrEmpty(SearchTerm))
+    {
+      articles = articles.Where(x => x.Title.Contains(SearchTerm.ToTitleCase()));
+    }
+    filteredArticles = await articles.ToListAsync();
   }
 }

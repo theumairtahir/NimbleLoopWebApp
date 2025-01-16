@@ -282,14 +282,14 @@
 
     var article = new Article
       {
-        Title = articleModel.Title,
+        Title = articleModel.Title.ToTitleCase(),
         ContentMarkdown = articleModel.Content,
         ImageUrl = articleModel.ImageUrl,
         ImageAltText = articleModel.ImageAltText,
         Key = articleModel.Key.ToSlug(),
         IsFeatured = articleModel.IsFeatured,
         Tags = tags,
-        MetaTitle = articleModel.MetaTitle,
+        MetaTitle = articleModel.MetaTitle?.ToTitleCase(),
         MetaDescription = articleModel.MetaDescription,
         Editor = new Editor
         {

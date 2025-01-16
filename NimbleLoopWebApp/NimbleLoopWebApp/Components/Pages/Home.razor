@@ -4,6 +4,7 @@
 @using NimbleLoopWebApp.Client.ViewModels
 @using NimbleLoopWebApp.Data
 @using NimbleLoopWebApp.ViewModels
+@using NimbleLoop.Domain.Queries
 @using Constants = NimbleLoopWebApp.Constants
 @attribute [StreamRendering]
 @inject NimbleLoopDbContext dbContext
@@ -172,8 +173,7 @@
   protected override async Task OnInitializedAsync()
   {
     var fetchedArticles = await dbContext.Articles
-        .OrderByDescending(a => a.CreatedAt)
-        .Take(3)
+        .GetArticles(4)
         .ToListAsync();
     articles = fetchedArticles.Select(a => new HomeArticleViewModel(a.Key, a.GetArticleTitle(), a.MetaDescription ?? string.Empty, a.ImageUrl, a.GetArticleImageAlt()))
        .ToList();
