@@ -1,9 +1,12 @@
 ﻿@page "/"
+@using Microsoft.EntityFrameworkCore
 @using NimbleLoopWebApp.Client.Components
 @using NimbleLoopWebApp.Client.ViewModels
+@using NimbleLoopWebApp.Data
 @using NimbleLoopWebApp.ViewModels
 @using Constants = NimbleLoopWebApp.Constants
 @attribute [StreamRendering]
+@inject NimbleLoopDbContext dbContext
 
 <PageTitle>Home - @Constants.APP_NAME</PageTitle>
 
@@ -164,28 +167,14 @@
         new HomeServiceViewModel("Azure Cloud", "Seamlessly migrate your applications to the Azure cloud platform."),
         new HomeServiceViewModel("Dedicated Teams", "Get the resources you want, to develop and scale rapidly")
     };
-  private List<HomeArticleViewModel> articles = new()
-    {
-        new HomeArticleViewModel
-        (
-            "1",
-            "Understanding Blazor WebAssembly",
-            "An introduction to building web applications with Blazor WebAssembly.",
-            "https://placehold.co/600x400"
-        ),
-        new HomeArticleViewModel
-        (
-            "2",
-            "Getting Started with .NET 9",
-            "Explore the new features in .NET 9 and how to leverage them in your applications.",
-            "https://placehold.co/600x400"
-        ),
-        new HomeArticleViewModel
-        (
-            "3",
-            "Azure Cloud Migration Best Practices",
-            "Learn how to effectively migrate your applications to Azure Cloud.",
-            "https://placehold.co/600x400"
-        )
-    };
+  private List<HomeArticleViewModel> articles = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    articles = await dbContext.Articles
+        .OrderByDescending(a => a.CreatedAt)
+        .Take(3)
+        .Select(a => new HomeArticleViewModel(a.Key, a.MetaTitle ?? a.Title, a.MetaDescription ?? string.Empty, a.ImageUrl))
+        .ToListAsync();
+  }
 }
