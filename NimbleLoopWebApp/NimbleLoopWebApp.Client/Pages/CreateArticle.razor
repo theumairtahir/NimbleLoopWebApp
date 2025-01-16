@@ -48,8 +48,12 @@
       <!-- Key -->
       <div class="mb-3">
         <label class="form-label">Key*</label>
-        <InputText class="form-control" @bind-Value="articleModel.Key" />
+        <InputText class="form-control" @bind-Value="articleModel.Key" @bind-Value:after="ValidateUniqueKey" />
         <ValidationMessage For="@(() => articleModel.Key)" />
+        @if (isDuplicateKey)
+        {
+          <p><small class="text-danger">Key already exists. Please choose a different key.</small></p>
+        }
       </div>
 
       <!-- Is Featured -->
@@ -158,6 +162,7 @@
   private bool IsEditMode => !string.IsNullOrEmpty(ArticleId);
   private string? submissionMessage = null;
   private string submissionMessageClass = "alert-success";
+  private bool isDuplicateKey = false;
 
   private List<Editor> editors = new();
   private string selectedEditorId = string.Empty;
@@ -226,6 +231,9 @@
 
   private async Task HandleValidSubmit()
   {
+    if (isDuplicateKey)
+      return;
+
     // Split tags by comma and trim whitespace
     var tags = tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries)
                         .Select(t => t.Trim().ToLower()).ToList();
@@ -278,7 +286,7 @@
         ContentMarkdown = articleModel.Content,
         ImageUrl = articleModel.ImageUrl,
         ImageAltText = articleModel.ImageAltText,
-        Key = articleModel.Key.ToLower().Trim().Replace(' ', '_'),
+        Key = articleModel.Key.ToSlug(),
         IsFeatured = articleModel.IsFeatured,
         Tags = tags,
         MetaTitle = articleModel.MetaTitle,
@@ -300,8 +308,6 @@
     {
       submissionMessage = IsEditMode ? "Article updated successfully!" : "Article created successfully!";
       submissionMessageClass = "alert-success";
-
-      // Optionally, navigate back to the articles list after a short delay
       await Task.Delay(2000);
       Navigation.NavigateTo("/articles");
     }
@@ -341,5 +347,13 @@
       articleModel.EditorImageUrl = string.Empty;
       articleModel.EditorImageAltText = string.Empty;
     }
+  }
+
+  private async void ValidateUniqueKey()
+  {
+    var isUnique = ArticleId is null ? await HttpClient.GetFromJsonAsync<bool>($"api/validate-unique-key/{articleModel.Key}")
+                                     : await HttpClient.GetFromJsonAsync<bool>($"api/validate-unique-key/{articleModel.Key}?articleId={ArticleId}");
+    isDuplicateKey = !isUnique;
+    StateHasChanged();
   }
 }

@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <Folder Include="Agents\" />
-    <Folder Include="Domain\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using NimbleLoop.Domain.Entities;
+using NimbleLoopWebApp.Client.Extensions;
 using NimbleLoopWebApp.Client.ViewModels;
 using NimbleLoopWebApp.Components;
 using NimbleLoopWebApp.Data;
@@ -78,11 +79,27 @@ app.MapPost("api/articles", async (NimbleLoopDbContext dbContext, [FromBody] Art
 	var isNew = string.IsNullOrEmpty(article.Id);
 
 	if (isNew)
+	{
+		var isDuplicateKey = await dbContext.Articles.AnyAsync(a => a.Key == article.Key);
+		if (isDuplicateKey)
+			return Results.BadRequest("Key must be unique");
 		await dbContext.Articles.AddAsync(article);
+	}
 	else
+	{
 		dbContext.Articles.Update(article);
+	}
 	await dbContext.SaveChangesAsync(User);
 	return isNew ? Results.Created( ) : Results.Ok( );
+}).RequireAuthorization( );
+
+app.MapGet("api/validate-unique-key/{key}", async (NimbleLoopDbContext dbContext, string key, [FromQuery] string? articleId) =>
+{
+	var slug = key.ToSlug( );
+	if (string.IsNullOrEmpty(articleId))
+		return Results.Ok(!await dbContext.Articles.AnyAsync(a => a.Key == slug));
+	return Results.Ok(!await dbContext.Articles.AnyAsync(a => a.Key == slug && a.Id != articleId));
+
 }).RequireAuthorization( );
 
 app.MapGet("api/editors", async (NimbleLoopDbContext dbContext) => Results.Ok(await dbContext.Editors.ToListAsync( )))
