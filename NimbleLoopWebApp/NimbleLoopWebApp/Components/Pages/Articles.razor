@@ -16,17 +16,20 @@
   <AddArticleButton />
 </div>
 <!--Hero section:end-->
-<!--Featured section:start-->
-<div class="my-5 container">
-  <h2 class="mb-4 text-center">Featured Articles</h2>
-  <div class="row">
-    @foreach (var article in featuredArticles)
-    {
-      <ArticleTile ImageUrl="@article.ImageUrl" Key="@article.Key" Summary="@article.MetaDescription" Title="@article.GetArticleTitle()" ImageAlt="@article.GetArticleImageAlt()" />
-    }
+@if (string.IsNullOrEmpty(SearchTerm) && string.IsNullOrEmpty(SelectedCategory))
+{
+  <!--Featured section:start-->
+  <div class="my-5 container">
+    <h2 class="mb-4 text-center">Featured Articles</h2>
+    <div class="row">
+      @foreach (var article in featuredArticles)
+      {
+        <ArticleTile ImageUrl="@article.ImageUrl" Key="@article.Key" Summary="@article.MetaDescription" Title="@article.GetArticleTitle()" ImageAlt="@article.GetArticleImageAlt()" />
+      }
+    </div>
   </div>
-</div>
-<!--Featured section:end-->
+  <!--Featured section:end-->
+}
 <!--Articles list section:start-->
 <div class="my-5 container">
   <h2 class="mb-4 text-center">All Articles</h2>
