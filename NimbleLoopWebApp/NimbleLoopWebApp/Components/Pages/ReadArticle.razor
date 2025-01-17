@@ -1,0 +1,82 @@
+﻿@page "/articles/{Key}"
+@using Microsoft.EntityFrameworkCore
+@using MongoDB.Driver
+@using NimbleLoop.Domain.Entities
+@using Humanizer
+@using NimbleLoopWebApp.Data
+@using NimbleLoop.Domain.Queries
+@attribute [StreamRendering]
+@inject NimbleLoopDbContext DbContext
+
+@if (article is not null)
+{
+  <!--Hero Section:start-->
+  <div class="hero-section">
+    <img src="@article.ImageUrl" alt="@article.ImageAltText" class="hero-image" />
+    <h1>@article.Title</h1>
+    <h3>Posted on @article.CreatedAt.ToOrdinalWords() by @article.Editor.Name</h3>
+  </div>
+  <!--Hero Section:end-->
+  <!--Content Section:start-->
+  <div class="content-section">
+    @((MarkupString)article.ContentMarkdown)
+  </div>
+  <!--Content Section:end-->
+  <!--Editor Section:start-->
+  <div class="editor-section">
+    <h2>About the Editor</h2>
+    <img src="@article.Editor.ImageUrl" alt="@article.Editor.ImageAltText" class="editor-image" />
+    <h3>@article.Editor.Name</h3>
+    <p>@article.Editor.Bio</p>
+  </div>
+  <!--Editor Section:end-->
+  <!--Latest Section:start-->
+  @if (relatedArticles.Any())
+  {
+    <h2>Latest Blogs</h2>
+    <div class="row">
+      @foreach (var relatedArticle in relatedArticles)
+      {
+        <ArticleTile Key="@relatedArticle.Key"
+                     ImageUrl="@relatedArticle.ImageUrl"
+                     ImageAlt="@relatedArticle.GetArticleImageAlt()"
+                     Title="@relatedArticle.GetArticleTitle()"
+                     Summary="@relatedArticle.MetaDescription" />
+      }
+    </div>
+  }
+  <!--Latest Section:end-->
+  <!--Comments Section:start-->
+  <h2>Comments</h2>
+  <div class="comments-section mt-4">
+    @foreach (var comment in article.Comments)
+    {
+      <div class="comment mb-3 p-3 rounded border">
+        <h4 class="h5">@comment.CommentedBy</h4>
+        <p>@comment.Comment</p>
+        <small class="text-muted">@comment.CommentedAt.ToOrdinalWords()</small>
+      </div>
+    }
+  </div>
+  <!--Comments Section:end-->
+}
+else
+{
+  <p>Resource not found</p>
+}
+@code {
+  [Parameter]
+  public string Key { get; set; } = null!;
+
+  private Article? article;
+  private List<Article> relatedArticles = [];
+
+  protected async override Task OnInitializedAsync()
+  {
+    await base.OnInitializedAsync();
+    article = await DbContext.Articles.FirstOrDefaultAsync(x => x.Key == Key);
+    if (article is not null)
+      article.Editor = (await DbContext.Editors.FindAsync(article.EditorId))!;
+    relatedArticles = await DbContext.Articles.GetArticles(4).ToListAsync();
+  }
+}

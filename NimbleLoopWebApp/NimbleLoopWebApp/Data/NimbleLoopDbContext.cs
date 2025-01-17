@@ -20,6 +20,7 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options) 
 		articleCollection.HasKey(x => x.Id);
 		articleCollection.Ignore(x => x.LastModified);
 		articleCollection.Property(x => x.Id).HasConversion<ObjectId>( );
+		articleCollection.Property(x => x.EditorId).HasConversion<ObjectId>( );
 		articleCollection.HasIndex(x => x.Key).IsUnique( );
 		var editorsCollection = modelBuilder.Entity<Editor>( ).ToCollection("editors");
 		editorsCollection.HasKey(x => x.Id);
