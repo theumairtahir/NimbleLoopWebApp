@@ -11,23 +11,27 @@
 @if (article is not null)
 {
   <!--Hero Section:start-->
-  <div class="hero-section">
-    <img src="@article.ImageUrl" alt="@article.ImageAltText" class="hero-image" />
-    <h1>@article.Title</h1>
-    <h3>Posted on @article.CreatedAt.ToOrdinalWords() by @article.Editor.Name</h3>
+  <div class="hero-section mb-5 text-center">
+    <img src="@article.ImageUrl" alt="@article.ImageAltText" class="hero-image img-fluid mb-3 rounded" />
+    <h1 class="display-4">@article.Title</h1>
+    <h3 class="text-muted">Posted on @article.CreatedAt.ToOrdinalWords() by @article.Editor.Name</h3>
   </div>
   <!--Hero Section:end-->
   <!--Content Section:start-->
-  <div class="content-section">
+  <div class="content-section mb-5">
     @((MarkupString)article.ContentMarkdown)
   </div>
   <!--Content Section:end-->
   <!--Editor Section:start-->
-  <div class="editor-section">
+  <div class="editor-section mb-5 p-4 bg-light rounded">
     <h2>About the Editor</h2>
-    <img src="@article.Editor.ImageUrl" alt="@article.Editor.ImageAltText" class="editor-image" />
-    <h3>@article.Editor.Name</h3>
-    <p>@article.Editor.Bio</p>
+    <div class="d-flex align-items-center">
+      <img src="@article.Editor.ImageUrl" alt="@article.Editor.ImageAltText" class="editor-image img-fluid rounded-circle me-3" style="width: 100px; height: 100px;" />
+      <div>
+        <h3>@article.Editor.Name</h3>
+        <p>@article.Editor.Bio</p>
+      </div>
+    </div>
   </div>
   <!--Editor Section:end-->
   <!--Latest Section:start-->
@@ -39,8 +43,8 @@
       {
         <ArticleTile Key="@relatedArticle.Key"
                      ImageUrl="@relatedArticle.ImageUrl"
-                     ImageAlt="@relatedArticle.GetArticleImageAlt()"
-                     Title="@relatedArticle.GetArticleTitle()"
+                     ImageAlt="@relatedArticle.ImageAltText"
+                     Title="@relatedArticle.Title"
                      Summary="@relatedArticle.MetaDescription" />
       }
     </div>
@@ -49,13 +53,20 @@
   <!--Comments Section:start-->
   <h2>Comments</h2>
   <div class="comments-section mt-4">
-    @foreach (var comment in article.Comments)
+    @if (article.Comments.Count == 0)
     {
-      <div class="comment mb-3 p-3 rounded border">
-        <h4 class="h5">@comment.CommentedBy</h4>
-        <p>@comment.Comment</p>
-        <small class="text-muted">@comment.CommentedAt.ToOrdinalWords()</small>
-      </div>
+      <p>No comments yet</p>
+    }
+    else
+    {
+      @foreach (var comment in article.Comments)
+      {
+        <div class="comment mb-3 p-3 rounded border">
+          <h4 class="h5">@comment.CommentedBy</h4>
+          <p>@comment.Comment</p>
+          <small class="text-muted">@comment.CommentedAt.ToOrdinalWords()</small>
+        </div>
+      }
     }
   </div>
   <!--Comments Section:end-->
@@ -64,6 +75,7 @@ else
 {
   <p>Resource not found</p>
 }
+
 @code {
   [Parameter]
   public string Key { get; set; } = null!;
