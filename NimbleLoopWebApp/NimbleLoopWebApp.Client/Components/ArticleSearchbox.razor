@@ -7,7 +7,7 @@
 {
   <div class="d-flex justify-content-center mt-4">
     <div class="input-group w-50">
-      <input type="text" class="form-control" placeholder="Search articles..." @bind-value="SearchTerm" @bind-value:event="oninput" @bind-value:after="DeferredFilterArticles" />
+      <input type="text" class="form-control" placeholder="Search articles..." @bind-value="SearchTerm" @bind-value:event="oninput" @bind-value:after="DeferredFilterArticles" maxlength="100" />
       <select class="form-select" @bind="SelectedCategory" @bind:after="FilterArticles">
         <option value="">All Categories</option>
         @foreach (var category in categories)
@@ -47,7 +47,7 @@
     var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
 
     if (!string.IsNullOrWhiteSpace(SearchTerm))
-      query["query"] = SearchTerm;
+      query["query"] = SearchTerm[0..99].Trim();
     if (!string.IsNullOrWhiteSpace(SelectedCategory))
       query["category"] = SelectedCategory;
 
