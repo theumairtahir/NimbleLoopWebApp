@@ -14,7 +14,7 @@
   <div class="hero-section mb-5 text-center">
     <img src="@article.ImageUrl" alt="@article.ImageAltText" class="hero-image img-fluid mb-3 rounded" />
     <h1 class="display-4">@article.Title</h1>
-    <h3 class="text-muted">Posted on @article.CreatedAt.ToOrdinalWords() by @article.Editor.Name</h3>
+    <h3 class="text-muted">Posted @article.CreatedAt.Humanize(true) by @article.Editor.Name</h3>
   </div>
   <!--Hero Section:end-->
   <!--Content Section:start-->
@@ -64,12 +64,14 @@
         <div class="comment mb-3 p-3 rounded border">
           <h4 class="h5">@comment.CommentedBy</h4>
           <p>@comment.Comment</p>
-          <small class="text-muted">@comment.CommentedAt.ToOrdinalWords()</small>
+          <small class="text-muted">@comment.CommentedAt.Humanize(true)</small>
         </div>
       }
     }
   </div>
   <!--Comments Section:end-->
+  <!--Add Comment Section:start-->
+  <!--Add Comment Section:end-->
 }
 else
 {
