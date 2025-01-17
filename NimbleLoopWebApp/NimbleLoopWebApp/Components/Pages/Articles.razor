@@ -41,29 +41,58 @@
   </div>
 </div>
 <!--Articles list section:end-->
+@if (totalPages > 0)
+{
+  <!--Articles Pagination:start-->
+  <nav aria-label="Articles Navigation">
+    <ul class="pagination justify-content-center">
+      <li class="page-item @(currentPage==1?"disabled":string.Empty)">
+        <a class="page-link" href="/articles?page=@(currentPage-1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+      @for (int i = 1; i <= totalPages; i++)
+      {
+        <li class="page-item @(currentPage==i?"active":string.Empty)"><a class="page-link" href="/articles?page=@i">@i</a></li>
+      }
+      <li class="page-item @(currentPage==totalPages?"disabled":string.Empty)">
+        <a class="page-link" href="/articles?page=@(currentPage+1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <!--Articles Pagination:end-->
+}
 @code {
   [SupplyParameterFromQuery(Name = "query")]
   public string? SearchTerm { get; set; }
   [SupplyParameterFromQuery(Name = "category")]
   public string? SelectedCategory { get; set; }
+  [SupplyParameterFromQuery(Name = "page")]
+  public int? Page { get; set; }
 
   private IQueryable<Article> articles = null!;
   private List<Article> filteredArticles = new();
   private List<Article> featuredArticles = new();
+  private int pageSize = 2;
+  private int totalPages = 0;
+  private int currentPage;
 
   protected async override Task OnInitializedAsync()
   {
     await base.OnInitializedAsync();
     featuredArticles = await dbContext.Articles.GetFeaturedArticles(4).ToListAsync();
+    var totalArticles = await dbContext.Articles.CountAsync();
+    totalPages = (totalArticles + pageSize - 1) / pageSize;
     articles = dbContext.Articles.GetArticles();
+    currentPage = Page ?? 1;
     if (!string.IsNullOrEmpty(SelectedCategory))
-    {
       articles = articles.Where(x => x.Tags.Contains(SelectedCategory));
-    }
     if (!string.IsNullOrEmpty(SearchTerm))
-    {
       articles = articles.Where(x => x.Title.Contains(SearchTerm.ToTitleCase()));
-    }
-    filteredArticles = await articles.ToListAsync();
+    filteredArticles = await articles.Skip((currentPage - 1) * pageSize).Take(pageSize).ToListAsync();
   }
 }
