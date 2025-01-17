@@ -39,14 +39,20 @@
 
   private void FilterArticles()
   {
-    if (string.IsNullOrWhiteSpace(SearchTerm) && string.IsNullOrWhiteSpace(SelectedCategory))
-      Navigator.NavigateTo($"/articles");
-    else if (string.IsNullOrWhiteSpace(SearchTerm))
-      Navigator.NavigateTo($"/articles?category={SelectedCategory}");
-    else if (string.IsNullOrWhiteSpace(SelectedCategory))
-      Navigator.NavigateTo($"/articles?query={SearchTerm}");
-    else
-      Navigator.NavigateTo($"/articles?query={SearchTerm}&category={SelectedCategory}");
+    var uriBuilder = new UriBuilder
+      {
+        Path = "/articles"
+      };
+
+    var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
+
+    if (!string.IsNullOrWhiteSpace(SearchTerm))
+      query["query"] = SearchTerm;
+    if (!string.IsNullOrWhiteSpace(SelectedCategory))
+      query["category"] = SelectedCategory;
+
+    uriBuilder.Query = query.ToString();
+    Navigator.NavigateTo(uriBuilder.Uri.PathAndQuery);
   }
 
   private void DeferredFilterArticles()
@@ -54,7 +60,7 @@
     cancellationTokenSource?.Cancel();
     cancellationTokenSource = new CancellationTokenSource();
     var token = cancellationTokenSource.Token;
-    Task.Delay(500, token).ContinueWith(_ => FilterArticles(), token);
+    Task.Delay(1500, token).ContinueWith(_ => FilterArticles(), token);
   }
 
 }
