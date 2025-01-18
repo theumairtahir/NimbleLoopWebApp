@@ -1,19 +1,39 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using System.Net.Http.Headers;
 
 namespace NimbleLoopWebApp.Client.HttpClients;
 
-public class B2CAuthorizationMessageHandler(
-	IAccessTokenProvider provider,
-	NavigationManager navigation,
-	IConfiguration configuration) : DelegatingHandler
+public class B2CAuthorizationMessageHandler : DelegatingHandler
 {
-	private readonly IAccessTokenProvider _provider = provider;
-	private readonly NavigationManager _navigation = navigation;
-	private readonly IConfiguration _configuration = configuration;
+	private readonly IAccessTokenProvider _provider;
+	private readonly NavigationManager _navigation;
+	private readonly IConfiguration _configuration;
 	private AccessToken? _lastToken;
 	private AuthenticationHeaderValue? _cachedHeader;
+
+	public B2CAuthorizationMessageHandler(
+		IAccessTokenProvider provider,
+		NavigationManager navigation,
+		IConfiguration configuration)
+	{
+		_provider = provider;
+		_navigation = navigation;
+		_configuration = configuration;
+		if (_provider is AuthenticationStateProvider authenticationStateProvider)
+		{
+			authenticationStateProvider.AuthenticationStateChanged += async authStateTask =>
+			{
+				var authState = await authStateTask;
+				if (authState.User?.Identity?.IsAuthenticated == true)
+				{
+					_lastToken = null;
+					_cachedHeader = null;
+				}
+			};
+		}
+	}
 
 	protected override async Task<HttpResponseMessage> SendAsync(
 		HttpRequestMessage request,

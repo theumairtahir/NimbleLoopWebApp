@@ -5,7 +5,7 @@ using NimbleLoopWebApp.Client.HttpClients;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddCascadingAuthenticationState( );
 
-builder.Services.AddTransient<B2CAuthorizationMessageHandler>( );
+builder.Services.AddScoped<B2CAuthorizationMessageHandler>( );
 
 builder.Services.AddHttpClient(Constants.BASE_CLIENT, client => client.BaseAddress = new Uri(builder.Configuration["DownstreamApi:BaseUrl"] ?? string.Empty))
 	.AddHttpMessageHandler<B2CAuthorizationMessageHandler>( );
