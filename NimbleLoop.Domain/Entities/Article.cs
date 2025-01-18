@@ -18,8 +18,8 @@ public class Article : BaseEntity
 
 public class ArticleComment
 {
-	public required string CommentedBy { get; set; }
+	public string CommentedBy { get; set; } = null!;
 	public required string Comment { get; set; }
-	public required DateTime CommentedAt { get; set; }
+	public DateTime CommentedAt { get; set; }
 	public string ProspectId { get; set; } = null!;
 }

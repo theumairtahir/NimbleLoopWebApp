@@ -72,9 +72,10 @@
   {
     if (isAuthenticated && !string.IsNullOrWhiteSpace(commentText))
     {
-      // Add the comment to the article (this should be replaced with actual logic to save the comment)
-      // await CommentService.AddCommentAsync(articleId, commentText);
-
+      var response = await HttpClient.PostAsJsonAsync($"api/comments/{ArticleId}", new ArticleComment
+        {
+          Comment = commentText,
+        });
       commentText = string.Empty;
     }
   }
