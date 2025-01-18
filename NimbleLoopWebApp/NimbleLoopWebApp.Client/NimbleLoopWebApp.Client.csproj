@@ -12,6 +12,7 @@
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

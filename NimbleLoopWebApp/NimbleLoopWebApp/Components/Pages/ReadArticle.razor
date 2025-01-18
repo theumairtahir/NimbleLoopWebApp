@@ -51,27 +51,8 @@
   }
   <!--Latest Section:end-->
   <!--Comments Section:start-->
-  <h2>Comments</h2>
-  <div class="comments-section mt-4">
-    @if (article.Comments.Count == 0)
-    {
-      <p>No comments yet</p>
-    }
-    else
-    {
-      @foreach (var comment in article.Comments)
-      {
-        <div class="comment mb-3 p-3 rounded border">
-          <h4 class="h5">@comment.CommentedBy</h4>
-          <p>@comment.Comment</p>
-          <small class="text-muted">@comment.CommentedAt.Humanize(true)</small>
-        </div>
-      }
-    }
-  </div>
+  <ArticleCommentsSection ArticleId="@article.Id" />
   <!--Comments Section:end-->
-  <!--Add Comment Section:start-->
-  <!--Add Comment Section:end-->
 }
 else
 {

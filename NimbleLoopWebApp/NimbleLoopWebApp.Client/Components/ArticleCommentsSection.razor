@@ -1,0 +1,91 @@
+﻿@using Humanizer
+@using Microsoft.AspNetCore.Components.Authorization
+@using NimbleLoop.Domain.Entities
+@rendermode InteractiveWebAssembly
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+
+<h2>Comments</h2>
+<div class="comments-section mt-4">
+  @if (comments is null)
+  {
+    <p>Loading Comments...</p>
+  }
+  else
+  {
+    if (comments.Count == 0)
+    {
+      <p>No comments yet</p>
+    }
+    else
+    {
+      foreach (var comment in comments)
+      {
+        <div class="comment mb-3 p-3 rounded border">
+          <h4 class="h5">@comment.CommentedBy</h4>
+          <p>@comment.Comment</p>
+          <small class="text-muted">@comment.CommentedAt.Humanize(true)</small>
+        </div>
+      }
+    }
+  }
+</div>
+
+
+<AuthorizeView>
+  <Authorized>
+    <div class="add-comment-section mt-4">
+      <h3>Add a Comment</h3>
+      <textarea class="form-control mb-2" @bind="commentText" placeholder="Write your comment here..."></textarea>
+      <button class="btn btn-primary" @onclick="HandleCommentSubmit">Submit</button>
+    </div>
+  </Authorized>
+  <NotAuthorized>
+    <div class="auth-buttons mt-4">
+      <p>Please <button class="btn btn-link" @onclick="RedirectToLogin">login</button> or <button class="btn btn-link" @onclick="RedirectToSignup">signup</button> to add a comment.</p>
+    </div>
+  </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+  [Parameter]
+  public string ArticleId { get; set; } = null!;
+
+  private string commentText = string.Empty;
+  private bool isAuthenticated = false;
+  private List<ArticleComment>? comments;
+  private HttpClient HttpClient => HttpClientFactory.CreateClient(Constants.BASE_CLIENT);
+
+  protected async override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      comments = await HttpClient.GetFromJsonAsync<List<ArticleComment>>($"api/comments/{ArticleId}");
+      StateHasChanged();
+    }
+    await base.OnAfterRenderAsync(firstRender);
+  }
+
+
+  private async Task HandleCommentSubmit()
+  {
+    if (isAuthenticated && !string.IsNullOrWhiteSpace(commentText))
+    {
+      // Add the comment to the article (this should be replaced with actual logic to save the comment)
+      // await CommentService.AddCommentAsync(articleId, commentText);
+
+      commentText = string.Empty;
+    }
+  }
+
+  private void RedirectToLogin()
+  {
+    NavigationManager.NavigateTo("/login");
+  }
+
+  private void RedirectToSignup()
+  {
+    NavigationManager.NavigateTo("/signup");
+  }
+}

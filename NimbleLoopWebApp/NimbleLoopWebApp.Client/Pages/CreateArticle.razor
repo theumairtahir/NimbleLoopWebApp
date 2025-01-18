@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using NimbleLoopWebApp.Client.ViewModels
 @rendermode InteractiveWebAssembly
+@inject IHttpClientFactory HttpClientFactory
 
 <AuthorizeView>
   <NotAuthorized>
@@ -167,8 +168,7 @@
   private List<Editor> editors = new();
   private string selectedEditorId = string.Empty;
 
-  [Inject]
-  private HttpClient HttpClient { get; set; } = default!;
+  private HttpClient HttpClient => HttpClientFactory.CreateClient(Constants.BASE_CLIENT);
 
   [Inject]
   private NavigationManager Navigation { get; set; } = default!;

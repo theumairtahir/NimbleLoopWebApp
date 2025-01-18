@@ -1,6 +1,6 @@
 ﻿@using System.Text
 @rendermode InteractiveWebAssembly
-@inject HttpClient HttpClient
+@inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager Navigator
 
 @if (categories is not null)
@@ -26,6 +26,7 @@
   public string? SelectedCategory { get; set; }
   private List<string> categories = null!;
   private CancellationTokenSource? cancellationTokenSource;
+  private HttpClient HttpClient => HttpClientFactory.CreateClient(Constants.BASE_CLIENT);
 
   protected async override Task OnAfterRenderAsync(bool firstRender)
   {

@@ -1,20 +1,14 @@
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using NimbleLoopWebApp.Client;
+using NimbleLoopWebApp.Client.HttpClients;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddCascadingAuthenticationState( );
-builder.Services.AddScoped(sp =>
-{
-	var authorizationMessageHandler = sp.GetRequiredService<AuthorizationMessageHandler>( );
-	authorizationMessageHandler.InnerHandler = new HttpClientHandler( );
-	authorizationMessageHandler = authorizationMessageHandler.ConfigureHandler(
-	  authorizedUrls: new[ ] { builder.Configuration["DownstreamApi:BaseUrl"] }!,
-	  scopes: new[ ] { builder.Configuration["DownstreamApi:Scope"] }!);
-	return new HttpClient(authorizationMessageHandler)
-	{
-		BaseAddress = new Uri(builder.Configuration["DownstreamApi:BaseUrl"] ?? string.Empty)
-	};
-});
+
+builder.Services.AddTransient<B2CAuthorizationMessageHandler>( );
+
+builder.Services.AddHttpClient(Constants.BASE_CLIENT, client => client.BaseAddress = new Uri(builder.Configuration["DownstreamApi:BaseUrl"] ?? string.Empty))
+	.AddHttpMessageHandler<B2CAuthorizationMessageHandler>( );
 
 builder.Services.AddMsalAuthentication(options =>
 {

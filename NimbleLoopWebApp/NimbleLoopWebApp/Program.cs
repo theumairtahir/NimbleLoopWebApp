@@ -111,6 +111,8 @@ app.MapGet("api/categories", async (NimbleLoopDbContext dbContext) =>
 	return Results.Ok(tags.SelectMany(t => t).Distinct( ));
 });
 
+app.MapGet("api/comments/{id}", async (NimbleLoopDbContext dbContext, string id) => Results.Ok(await dbContext.Articles.Where(x => x.Id == id).Select(x => x.Comments).FirstAsync( )));
+
 app.MapRazorComponents<App>( )
 	.AddInteractiveWebAssemblyRenderMode( )
 	.AddAdditionalAssemblies(typeof(NimbleLoopWebApp.Client._Imports).Assembly);
