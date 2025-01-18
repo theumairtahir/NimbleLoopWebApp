@@ -5,13 +5,18 @@
 <AuthorizeView>
   <Authorized>
     <div class="mt-4 text-center">
-      <button class="btn btn-success" @onclick="NavigateToAddArticle">Create New</button>
+      <button class="btn btn-success" @onclick="NavigateToAddArticle">@ButtonText</button>
     </div>
   </Authorized>
 </AuthorizeView>
 @code {
+  [Parameter]
+  public string ArticleId { get; set; } = null!;
+
+  private string ButtonText => ArticleId is not null ? "Edit" : "Create New";
+
   private void NavigateToAddArticle()
   {
-    Navigation.NavigateTo("/articles/create");
+    Navigation.NavigateTo($"/articles/create/{ArticleId}");
   }
 }

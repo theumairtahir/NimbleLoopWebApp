@@ -15,6 +15,7 @@
     <img src="@article.ImageUrl" alt="@article.ImageAltText" class="hero-image img-fluid mb-3 rounded" />
     <h1 class="display-4">@article.Title</h1>
     <h3 class="text-muted">Posted @article.CreatedAt.Humanize(true) by @article.Editor.Name</h3>
+    <AddArticleButton ArticleId="@article.Id" />
   </div>
   <!--Hero Section:end-->
   <!--Content Section:start-->
