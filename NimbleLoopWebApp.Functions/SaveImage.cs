@@ -62,7 +62,7 @@ public class SaveImage(ILogger<SaveImage> logger, BlobServiceClient blobServiceC
 						{ "1280x720", (1280, 720) },
 						{ "1200x630", (1200, 630) },
 						{ "150x150", (150, 150) },
-						{ "100x100", (150, 150) },
+						{ "100x100", (100, 100) },
 					};
 					var image = await Image.LoadAsync(stream);
 					foreach (var size in sizes)
