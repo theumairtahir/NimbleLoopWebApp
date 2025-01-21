@@ -23,10 +23,28 @@ public class ReadImage(ILogger<ReadImage> logger, BlobServiceClient blobServiceC
 		}
 
 		var path = req.Query["path"];
+		var size = req.Query["size"];
 
 		try
 		{
 			var containerClient = _blobServiceClient.GetBlobContainerClient("images");
+			var sizes = new[ ] { "1280x720", "1200x630", "150x150", "100x100" };
+
+			if (sizes.Contains(size))
+				return await FetchImageFromBlob(req, $"{size}/{imageName}", path, containerClient);
+
+			return await FetchImageFromBlob(req, imageName, path, containerClient);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Error reading image.");
+			var errorResponse = req.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
+			await errorResponse.WriteStringAsync("Error reading image.");
+			return errorResponse;
+		}
+
+		static async Task<HttpResponseData> FetchImageFromBlob(HttpRequestData req, string imageName, string? path, BlobContainerClient containerClient)
+		{
 			if (path is not null)
 				imageName = $"{path}/{imageName}";
 			var blobClient = containerClient.GetBlobClient(imageName);
@@ -45,13 +63,6 @@ public class ReadImage(ILogger<ReadImage> logger, BlobServiceClient blobServiceC
 				await notFoundResponse.WriteStringAsync("Image not found.");
 				return notFoundResponse;
 			}
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Error reading image.");
-			var errorResponse = req.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
-			await errorResponse.WriteStringAsync("Error reading image.");
-			return errorResponse;
 		}
 	}
 }
