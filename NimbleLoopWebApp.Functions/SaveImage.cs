@@ -27,7 +27,8 @@ public class SaveImage(ILogger<SaveImage> logger, BlobServiceClient blobServiceC
 		if (form.Files is { Count: <= 0 })
 			return new BadRequestObjectResult("No images provided.");
 
-		List<string> fileNames = [ ];
+		Dictionary<string, object> savedInformation = [ ];
+		var path = req.Query["path"].FirstOrDefault( );
 
 		foreach (var file in form.Files)
 		{
@@ -44,8 +45,9 @@ public class SaveImage(ILogger<SaveImage> logger, BlobServiceClient blobServiceC
 			{
 				var containerClient = _blobServiceClient.GetBlobContainerClient("images");
 				await containerClient.CreateIfNotExistsAsync( );
-
-				string imgBlobName = $"imgs-article/{Guid.NewGuid( )}_{file.FileName}";
+				var extension = Path.GetExtension(file.FileName);
+				var savedName = Guid.NewGuid( ) + extension;
+				string imgBlobName = string.Join('/', path, savedName);
 				var blobClient = containerClient.GetBlobClient(imgBlobName);
 
 				using (var stream = file.OpenReadStream( ))
@@ -53,7 +55,7 @@ public class SaveImage(ILogger<SaveImage> logger, BlobServiceClient blobServiceC
 					await blobClient.UploadAsync(stream, overwrite: true);
 				}
 
-				fileNames.Add(imgBlobName);
+				savedInformation.Add(file.FileName, new { path, savedName });
 			}
 			catch (Exception ex)
 			{
@@ -61,6 +63,6 @@ public class SaveImage(ILogger<SaveImage> logger, BlobServiceClient blobServiceC
 				continue;
 			}
 		}
-		return new OkObjectResult(fileNames);
+		return new OkObjectResult(savedInformation);
 	}
 }
