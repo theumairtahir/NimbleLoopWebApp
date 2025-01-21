@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "appInsights1": {
+      "type": "appInsights.sdk"
+    },
+    "storage1": {
+      "type": "storage.emulator",
+      "connectionId": "AzureWebJobsStorage"
+    },
+    "secrets1": {
+      "type": "secrets.user"
+    },
+    "storage2": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('serviceConnectorResourceGroupName')]/providers/Microsoft.ServiceLinker/locations/eastus/connectors/StorageConnection_9B2E53611D, /subscriptions/4987d67c-084e-43c8-abff-44b7070d6e5c/resourceGroups/NimbleLoopWebApp/providers/Microsoft.ServiceLinker/locations/eastus/connectors/StorageConnection_5D950F1439",
+      "secretStore": "LocalSecretsFile",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/nimbleloopstorage",
+      "type": "storage.azure",
+      "connectionId": "StorageConnection"
+    }
+  }
+}
