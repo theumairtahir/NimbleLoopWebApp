@@ -55,10 +55,9 @@ public class SaveImage(ILogger<SaveImage> logger, BlobServiceClient blobServiceC
 
 				using (var stream = file.OpenReadStream( ))
 				{
-					const string ORIGINAL = "original";
 					var sizes = new Dictionary<string, (int x, int y)>
 					{
-						{ ORIGINAL, (1920, 1080) }, // Original size
+						{ "1920x1080", (1920, 1080) },
 						{ "1280x720", (1280, 720) },
 						{ "1200x630", (1200, 630) },
 						{ "150x150", (150, 150) },
@@ -82,7 +81,7 @@ public class SaveImage(ILogger<SaveImage> logger, BlobServiceClient blobServiceC
 						});
 						ms.Position = 0;
 
-						string imgBlobName = size.Key is not ORIGINAL ? string.Join('/', path, size.Key, savedName) : string.Join('/', path, savedName);
+						string imgBlobName = string.Join('/', path, size.Key, savedName);
 						var blobClient = containerClient.GetBlobClient(imgBlobName);
 						await blobClient.UploadAsync(ms, overwrite: true);
 					}
