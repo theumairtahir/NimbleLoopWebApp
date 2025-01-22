@@ -4,4 +4,5 @@ public static class Constants
 {
 	public const string NOT_AUTH_MESSAGE = "You are not authorized to view this page";
 	public const string BASE_CLIENT = "AuthClient";
+	public const string APP_NAME = "NimbleLoop";
 }

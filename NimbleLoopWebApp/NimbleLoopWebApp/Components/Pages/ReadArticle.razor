@@ -10,6 +10,7 @@
 
 @if (article is not null)
 {
+  <PageTitle>@article.GetArticleTitle() - @NimbleLoopWebApp.Constants.APP_NAME</PageTitle>
   <!--Hero Section:start-->
   <div class="hero-section mb-5 text-center">
     <img src="@article.ImageUrl" alt="@article.ImageAltText" class="hero-image img-fluid mb-3 rounded" />
