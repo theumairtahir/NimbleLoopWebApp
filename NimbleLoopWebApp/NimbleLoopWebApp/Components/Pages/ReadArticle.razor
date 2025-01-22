@@ -28,17 +28,17 @@
   </HeadContent>
   <ArticleView Article="article" />
   <!--Latest Section:start-->
-  @if (relatedArticles.Any())
+  @if (latestArticles.Any())
   {
     <h2>Latest Blogs</h2>
     <div class="row">
-      @foreach (var relatedArticle in relatedArticles)
+      @foreach (var latestArticle in latestArticles)
       {
-        <ArticleTile Key="@relatedArticle.Key"
-                     ImageUrl="@relatedArticle.ImageUrl"
-                     ImageAlt="@relatedArticle.ImageAltText"
-                     Title="@relatedArticle.Title"
-                     Summary="@relatedArticle.MetaDescription" />
+        <ArticleTile Key="@latestArticle.Key"
+                     ImageUrl="@latestArticle.ImageUrl"
+                     ImageAlt="@latestArticle.ImageAltText"
+                     Title="@latestArticle.Title"
+                     Summary="@latestArticle.MetaDescription" />
       }
     </div>
   }
@@ -85,7 +85,7 @@ else
   public string Key { get; set; } = null!;
 
   private Article? article;
-  private List<Article> relatedArticles = [];
+  private List<Article> latestArticles = [];
 
   protected async override Task OnInitializedAsync()
   {
@@ -93,7 +93,7 @@ else
     article = await DbContext.Articles.FirstOrDefaultAsync(x => x.Key == Key);
     if (article is not null)
       article.Editor = (await DbContext.Editors.FindAsync(article.EditorId))!;
-    relatedArticles = await DbContext.Articles.GetArticles(4).ToListAsync();
+    latestArticles = await DbContext.Articles.GetArticles(4).ToListAsync();
   }
 
   private string GetArticleUri(string key)
