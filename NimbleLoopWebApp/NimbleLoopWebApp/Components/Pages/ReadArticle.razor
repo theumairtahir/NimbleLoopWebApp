@@ -70,6 +70,34 @@
   @*  <!--Comments Section:start-->
   <ArticleCommentsSection ArticleId="@article.Id" />
   <!--Comments Section:end--> *@
+
+  <script type="application/ld+json">
+    {
+    @("@context"): "https://schema.org",
+    @("@type"): "Article",
+    @("@id"): "#Article",
+        mainEntityOfPage: {
+    @("@type"): "WebPage",
+    @("@id"): "#webpage",
+              "url": "@GetArticleUri(article.Key)"
+            },
+        name: "@article.GetArticleTitle()",
+        headline: "@article.Title",
+        description: "@article.MetaDescription",
+        image: "@article.ImageUrl",
+        datePublished: "@article.CreatedAt.ToOrdinalWords()",
+        dateModified: "@article.LastModified.ToOrdinalWords()",
+        author: "@article.Editor.Name",
+        publisher: {
+    @("@type"): "Organization",
+            name: "@NimbleLoopWebApp.Constants.APP_NAME",
+            logo: {
+    @("@type"): "ImageObject",
+              url: "@Assets["images/logo.png"]"
+            }
+        }
+    }
+  </script>
 }
 else
 {
