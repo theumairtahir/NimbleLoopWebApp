@@ -146,7 +146,7 @@ app.MapGet("api/list-gallery", async (IHttpClientFactory httpFactory, IConfigura
 		images.Add(uri.Uri.ToString( ));
 	}
 	return Results.Ok(images);
-});
+}).RequireAuthorization( );
 
 app.MapGet("api/categories", async (NimbleLoopDbContext dbContext) =>
 {
