@@ -24,6 +24,7 @@ public class ArticleViewModel
 	public string? MetaTitle { get; set; }
 
 	public string? MetaDescription { get; set; }
+	public string? MetaKeywords { get; set; }
 
 	// Editor Details
 	[Required(ErrorMessage = "Editor Name is required.")]

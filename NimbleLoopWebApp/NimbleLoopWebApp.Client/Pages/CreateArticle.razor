@@ -83,6 +83,12 @@
         <InputTextArea class="form-control" @bind-Value="articleModel.MetaDescription" rows="3" />
       </div>
 
+      <!-- Meta Keywords -->
+      <div class="mb-3">
+        <label class="form-label">Meta Keywords</label>
+        <InputText class="form-control" @bind-Value="articleModel.MetaKeywords" />
+      </div>
+
       <!-- Editor Selection Dropdown -->
       <div class="mb-3">
         <label class="form-label">Select Editor</label>
@@ -207,6 +213,7 @@
               IsFeatured = article.IsFeatured,
               MetaTitle = article.MetaTitle,
               MetaDescription = article.MetaDescription,
+              MetaKeywords = article.MetaKeywords,
               EditorName = article.Editor.Name,
               EditorEmail = article.Editor.Email,
               EditorBio = article.Editor.Bio,
@@ -293,6 +300,7 @@
         Tags = tags,
         MetaTitle = articleModel.MetaTitle?.ToTitleCase(),
         MetaDescription = articleModel.MetaDescription,
+        MetaKeywords = articleModel.MetaKeywords,
         Editor = new Editor
         {
           Id = selectedEditorId,

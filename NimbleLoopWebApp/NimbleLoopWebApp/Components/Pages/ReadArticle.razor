@@ -7,10 +7,25 @@
 @using NimbleLoop.Domain.Queries
 @attribute [StreamRendering]
 @inject NimbleLoopDbContext DbContext
+@inject IHostEnvironment HostEnvironment
+@inject NavigationManager NavigationManager
 
 @if (article is not null)
 {
   <PageTitle>@article.GetArticleTitle() - @NimbleLoopWebApp.Constants.APP_NAME</PageTitle>
+  <HeadContent>
+    <meta name="description" content="@article.MetaDescription" />
+    <meta name="keywords" content="@article.MetaKeywords" />
+    <meta property="og:title" content="@article.GetArticleTitle()" />
+    <meta property="og:description" content="@article.MetaDescription" />
+    <meta property="og:image" content="@article.ImageUrl" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="@GetArticleUri(article.Key)">
+    <meta property="article:published_time" content="@article.CreatedAt.ToOrdinalWords()" />
+    <meta property="article:modified_time" content="@article.LastModified.ToOrdinalWords()" />
+    <meta property="article:author" content="@article.Editor.Name" />
+    <meta property="article:tag" content="@(string.Join(", ",article.Tags))" />
+  </HeadContent>
   <!--Hero Section:start-->
   <div class="hero-section mb-5 text-center">
     <img src="@article.ImageUrl" alt="@article.ImageAltText" class="hero-image img-fluid mb-3 rounded" />
@@ -75,5 +90,11 @@ else
     if (article is not null)
       article.Editor = (await DbContext.Editors.FindAsync(article.EditorId))!;
     relatedArticles = await DbContext.Articles.GetArticles(4).ToListAsync();
+  }
+
+  private string GetArticleUri(string key)
+  {
+    var uri = new Uri(NavigationManager.BaseUri);
+    return new Uri(uri, key).ToString();
   }
 }

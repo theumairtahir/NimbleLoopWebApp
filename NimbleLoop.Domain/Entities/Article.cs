@@ -11,6 +11,7 @@ public class Article : BaseEntity
 	public List<string> Tags { get; set; } = [ ];
 	public string? MetaTitle { get; set; }
 	public string? MetaDescription { get; set; }
+	public string? MetaKeywords { get; set; }
 	public string EditorId { get; set; } = null!;
 	public required Editor Editor { get; set; }
 	public List<ArticleComment> Comments { get; set; } = [ ];
