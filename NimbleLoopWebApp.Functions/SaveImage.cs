@@ -22,9 +22,7 @@ public class SaveImage(ILogger<SaveImage> logger, BlobServiceClient blobServiceC
 		_logger.LogInformation("Processing image upload request.");
 
 		if (!req.HasFormContentType)
-		{
 			return new BadRequestObjectResult("Invalid form data.");
-		}
 
 		var allowedContentTypes = new[ ] { "image/jpeg", "image/png", "image/webp" };
 		var form = await req.ReadFormAsync( );
