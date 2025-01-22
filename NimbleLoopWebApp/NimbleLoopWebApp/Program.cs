@@ -8,6 +8,7 @@ using NimbleLoopWebApp.Client.Extensions;
 using NimbleLoopWebApp.Client.ViewModels;
 using NimbleLoopWebApp.Components;
 using NimbleLoopWebApp.Data;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using Constants = NimbleLoopWebApp.Constants;
 
@@ -146,6 +147,20 @@ app.MapGet("api/list-gallery", async (IHttpClientFactory httpFactory, IConfigura
 		images.Add(uri.Uri.ToString( ));
 	}
 	return Results.Ok(images);
+}).RequireAuthorization( );
+
+app.MapPost("api/save-gallery-image/{imageName}", async (IHttpClientFactory httpFactory, [FromForm(Name = "image")] IFormFile file, [FromRoute] string imageName) =>
+{
+	var client = httpFactory.CreateClient(Constants.FUNCTIONS_CLIENT);
+	using var content = new MultipartFormDataContent( );
+
+	using var fileStream = file.OpenReadStream( );
+	var streamContent = new StreamContent(fileStream);
+	streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+	content.Add(streamContent, "image", file.FileName);
+
+	var response = await client.PostAsync($"/api/SaveImage/{imageName}?path={Constants.GALLERY_PATH}", content);
+	return response.IsSuccessStatusCode ? Results.Ok( ) : Results.StatusCode((int)response.StatusCode);
 }).RequireAuthorization( );
 
 app.MapGet("api/categories", async (NimbleLoopDbContext dbContext) =>
