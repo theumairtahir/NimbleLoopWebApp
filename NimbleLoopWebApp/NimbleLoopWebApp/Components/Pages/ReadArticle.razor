@@ -26,31 +26,7 @@
     <meta property="article:author" content="@article.Editor.Name" />
     <meta property="article:tag" content="@(string.Join(", ",article.Tags))" />
   </HeadContent>
-  <!--Hero Section:start-->
-  <div class="hero-section mb-5 text-center">
-    <img src="@article.ImageUrl" alt="@article.ImageAltText" class="hero-image img-fluid mb-3 rounded" />
-    <h1 class="display-4">@article.Title</h1>
-    <h3 class="text-muted">Posted @article.CreatedAt.Humanize(true) by @article.Editor.Name</h3>
-    <AddArticleButton ArticleId="@article.Id" />
-  </div>
-  <!--Hero Section:end-->
-  <!--Content Section:start-->
-  <div class="content-section mb-5">
-    @((MarkupString)article.ContentMarkdown)
-  </div>
-  <!--Content Section:end-->
-  <!--Editor Section:start-->
-  <div class="editor-section mb-5 p-4 bg-light rounded">
-    <h2>About the Editor</h2>
-    <div class="d-flex align-items-center">
-      <img src="@article.Editor.ImageUrl" alt="@article.Editor.ImageAltText" class="editor-image img-fluid rounded-circle me-3" style="width: 100px; height: 100px;" />
-      <div>
-        <h3>@article.Editor.Name</h3>
-        <p>@article.Editor.Bio</p>
-      </div>
-    </div>
-  </div>
-  <!--Editor Section:end-->
+  <ArticleView Article="article" />
   <!--Latest Section:start-->
   @if (relatedArticles.Any())
   {

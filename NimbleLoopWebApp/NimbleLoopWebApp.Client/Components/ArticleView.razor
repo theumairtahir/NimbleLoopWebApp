@@ -1,0 +1,37 @@
+﻿@using Humanizer
+@using NimbleLoop.Domain.Entities
+<!--Hero Section:start-->
+<div class="hero-section mb-5 text-center">
+  <img src="@Article.ImageUrl" alt="@Article.ImageAltText" class="hero-image img-fluid mb-3 rounded" />
+  <h1 class="display-4">@Article.Title</h1>
+  <h3 class="text-muted">Posted @Article.CreatedAt.Humanize(true) by @Article.Editor.Name</h3>
+  @if (ShowEditButton)
+  {
+    <AddArticleButton ArticleId="@Article.Id" />
+  }
+</div>
+<!--Hero Section:end-->
+<!--Content Section:start-->
+<div class="content-section mb-5">
+  @((MarkupString)Article.ContentMarkdown)
+</div>
+<!--Content Section:end-->
+<!--Editor Section:start-->
+<div class="editor-section mb-5 p-4 bg-light rounded">
+  <h2>About the Editor</h2>
+  <div class="d-flex align-items-center">
+    <img src="@Article.Editor.ImageUrl" alt="@Article.Editor.ImageAltText" class="editor-image img-fluid rounded-circle me-3" style="width: 100px; height: 100px;" />
+    <div>
+      <h3>@Article.Editor.Name</h3>
+      <p>@Article.Editor.Bio</p>
+    </div>
+  </div>
+</div>
+<!--Editor Section:end-->
+@code {
+  [Parameter, EditorRequired]
+  public required Article Article { get; set; }
+
+  [Parameter]
+  public bool ShowEditButton { get; set; } = true;
+}
