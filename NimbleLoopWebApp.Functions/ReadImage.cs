@@ -9,6 +9,7 @@ public class ReadImage(ILogger<ReadImage> logger, BlobServiceClient blobServiceC
 {
 	private readonly ILogger<ReadImage> _logger = logger;
 	private readonly BlobServiceClient _blobServiceClient = blobServiceClient;
+	private static readonly string[ ] AVAILABLE_SIZES = ["1920x1080", "1280x720", "1200x630", "150x150", "100x100"];
 
 	[Function(nameof(ReadImage))]
 	public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ReadImage/{imageName}")] HttpRequestData req, string imageName)
@@ -23,17 +24,14 @@ public class ReadImage(ILogger<ReadImage> logger, BlobServiceClient blobServiceC
 		}
 
 		var path = req.Query["path"];
-		var size = req.Query["size"];
+		var size = req.Query["size"] ?? "1920x1080";
 
 		try
 		{
 			var containerClient = _blobServiceClient.GetBlobContainerClient("images");
-			var sizes = new[ ] { "1280x720", "1200x630", "150x150", "100x100" };
+			var qualifiedName = AVAILABLE_SIZES.Contains(size) ? $"{size}/{imageName}" : $"{GetNearestSize(size)}/{imageName}";
 
-			if (sizes.Contains(size))
-				return await FetchImageFromBlob(req, $"{size}/{imageName}", path, containerClient);
-
-			return await FetchImageFromBlob(req, imageName, path, containerClient);
+			return await FetchImageFromBlob(req, qualifiedName, path, containerClient);
 		}
 		catch (Exception ex)
 		{
@@ -43,12 +41,13 @@ public class ReadImage(ILogger<ReadImage> logger, BlobServiceClient blobServiceC
 			return errorResponse;
 		}
 
+		static string GetNearestSize(string size) => AVAILABLE_SIZES.OrderBy(s => Math.Abs(int.Parse(s.Split('x')[0]) - int.Parse(size.Split('x')[0]))).ThenBy(s => Math.Abs(int.Parse(s.Split('x')[1]) - int.Parse(size.Split('x')[1]))).First( );
+
 		static async Task<HttpResponseData> FetchImageFromBlob(HttpRequestData req, string imageName, string? path, BlobContainerClient containerClient)
 		{
 			if (path is not null)
 				imageName = $"{path}/{imageName}";
-			else
-				imageName = $"1920x1080/{imageName}";
+
 			var blobClient = containerClient.GetBlobClient(imageName);
 
 			if (await blobClient.ExistsAsync( ))
