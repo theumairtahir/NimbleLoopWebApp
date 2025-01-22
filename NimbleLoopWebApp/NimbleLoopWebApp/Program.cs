@@ -9,6 +9,7 @@ using NimbleLoopWebApp.Client.ViewModels;
 using NimbleLoopWebApp.Components;
 using NimbleLoopWebApp.Data;
 using System.Security.Claims;
+using Constants = NimbleLoopWebApp.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,12 @@ builder.Services.AddScoped(sp =>
 {
 	var options = new DbContextOptionsBuilder<NimbleLoopDbContext>( ).UseMongoDB(builder.Configuration["DbConfig:ConnectionString"]!, builder.Configuration["DbConfig:DatabaseName"]!).Options;
 	return new NimbleLoopDbContext(options);
+});
+
+builder.Services.AddHttpClient(Constants.FUNCTIONS_CLIENT, x =>
+{
+	x.BaseAddress = new Uri(builder.Configuration["Functions:BaseUrl"]!);
+	x.DefaultRequestHeaders.Add("x-functions-key", builder.Configuration["Functions:FunctionKey"]);
 });
 
 builder.Services.AddBlazoredModal( );
@@ -121,6 +128,25 @@ app.MapGet("api/validate-unique-key/{key}", async (NimbleLoopDbContext dbContext
 
 app.MapGet("api/editors", async (NimbleLoopDbContext dbContext) => Results.Ok(await dbContext.Editors.ToListAsync( )))
 	.RequireAuthorization( );
+
+app.MapGet("api/list-gallery", async (IHttpClientFactory httpFactory, IConfiguration configuration) =>
+{
+	var client = httpFactory.CreateClient(Constants.FUNCTIONS_CLIENT);
+	var fileNames = await client.GetFromJsonAsync<List<string>>($"/api/ReadImageNames?path={Constants.GALLERY_PATH}/1920x1080") ?? [ ];
+	var images = new List<string>( );
+	var baseUrl = configuration["Functions:BaseUrl"]!;
+	foreach (var image in fileNames)
+	{
+		var imageName = image.Split('/').Last( );
+		var uri = new UriBuilder(baseUrl)
+		{
+			Path = $"api/ReadImage/{imageName}",
+			Query = "path=" + Constants.GALLERY_PATH
+		};
+		images.Add(uri.Uri.ToString( ));
+	}
+	return Results.Ok(images);
+});
 
 app.MapGet("api/categories", async (NimbleLoopDbContext dbContext) =>
 {
