@@ -15,7 +15,7 @@ public static class TransformationExtensions
 		value = Encoding.ASCII.GetString(bytes);
 		value = Regex.Replace(value, @"[^a-z0-9\s-]", "");
 		value = Regex.Replace(value, @"\s+", " ").Trim( );
-		value = value.Substring(0, value.Length <= 45 ? value.Length : 45).Trim( );
+		value = value.Substring(0, value.Length <= 70 ? value.Length : 70).Trim( );
 		value = Regex.Replace(value, @"\s", "-");
 		return value;
 	}

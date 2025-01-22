@@ -203,17 +203,21 @@
       // Fetch editors from API
       editors = await HttpClient.GetFromJsonAsync<List<Editor>>("api/editors") ?? new List<Editor>();
     }
+  }
 
-    if (IsEditMode)
+  protected async override Task OnAfterRenderAsync(bool firstRender)
+  {
+    await base.OnAfterRenderAsync(firstRender);
+    if (firstRender)
     {
-      var response = await HttpClient.GetAsync($"api/articles/{ArticleId}");
-      if (response.IsSuccessStatusCode)
+      if (IsEditMode)
       {
-        var article = await response.Content.ReadFromJsonAsync<Article>();
-        if (article != null)
+        var article = await HttpClient.GetFromJsonAsync<Article>($"api/articles/{ArticleId}");
+        if (article is not null)
         {
           articleModel = new ArticleViewModel
             {
+              Id = article.Id,
               Title = article.Title,
               Content = article.ContentMarkdown,
               ImageUrl = article.ImageUrl,
@@ -239,11 +243,7 @@
           submissionMessageClass = "alert-danger";
         }
       }
-      else
-      {
-        submissionMessage = "Failed to load the article.";
-        submissionMessageClass = "alert-danger";
-      }
+      StateHasChanged();
     }
   }
 
@@ -376,6 +376,7 @@
   {
     return new Article
       {
+        Id = articleModel.Id!,
         Title = articleModel.Title.ToTitleCase(),
         ContentMarkdown = articleModel.Content,
         ImageUrl = articleModel.ImageUrl,

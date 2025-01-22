@@ -96,6 +96,20 @@ app.MapPost("api/articles", async (NimbleLoopDbContext dbContext, [FromBody] Art
 	return isNew ? Results.Created( ) : Results.Ok( );
 }).RequireAuthorization( );
 
+app.MapGet("api/articles/{id}", async (NimbleLoopDbContext dbContext, [FromRoute] string id) =>
+{
+	var article = await dbContext.Articles.FirstOrDefaultAsync(a => a.Id == id);
+	if (article is not null)
+	{
+		article.Editor = ( await dbContext.Editors.FindAsync(article.EditorId) )!;
+		return Results.Ok(article);
+	}
+	else
+	{
+		return Results.NotFound( );
+	}
+}).RequireAuthorization( );
+
 app.MapGet("api/validate-unique-key/{key}", async (NimbleLoopDbContext dbContext, string key, [FromQuery] string? articleId) =>
 {
 	var slug = key.ToSlug( );

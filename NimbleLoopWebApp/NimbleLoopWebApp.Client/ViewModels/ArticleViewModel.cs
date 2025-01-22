@@ -4,6 +4,8 @@ namespace NimbleLoopWebApp.Client.ViewModels;
 
 public class ArticleViewModel
 {
+	public string? Id { get; set; }
+
 	[Required]
 	public string Title { get; set; } = string.Empty;
 
