@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,8 @@ builder.Services.AddScoped(sp =>
 	var options = new DbContextOptionsBuilder<NimbleLoopDbContext>( ).UseMongoDB(builder.Configuration["DbConfig:ConnectionString"]!, builder.Configuration["DbConfig:DatabaseName"]!).Options;
 	return new NimbleLoopDbContext(options);
 });
+
+builder.Services.AddBlazoredModal( );
 
 var app = builder.Build( );
 

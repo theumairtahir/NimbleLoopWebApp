@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using NimbleLoopWebApp.Client;
 using NimbleLoopWebApp.Client.HttpClients;
@@ -17,5 +18,7 @@ builder.Services.AddMsalAuthentication(options =>
 	options.ProviderOptions.Cache.CacheLocation = "localStorage";
 	options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["DownstreamApi:Scope"]!);
 });
+
+builder.Services.AddBlazoredModal( );
 
 await builder.Build( ).RunAsync( );

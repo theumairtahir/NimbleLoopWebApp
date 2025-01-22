@@ -1,166 +1,172 @@
 ﻿@page "/articles/create/{ArticleId?}"
+@using Blazored.Modal
+@using Blazored.Modal.Services
 @using Microsoft.AspNetCore.Authorization
 @using System.ComponentModel.DataAnnotations
 @using NimbleLoop.Domain.Entities
 @using System.Net.Http.Json
 @using Microsoft.AspNetCore.Components.Authorization
+@using NimbleLoopWebApp.Client.Components
 @using NimbleLoopWebApp.Client.ViewModels
 @rendermode InteractiveWebAssembly
 @inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Create Blog - @Constants.APP_NAME</PageTitle>
 
-<AuthorizeView>
-  <NotAuthorized>
-    <p>@Constants.NOT_AUTH_MESSAGE</p>
-  </NotAuthorized>
-  <Authorized>
-    <h3>@(IsEditMode ? "Edit Article" : "Create New Article")</h3>
-    <!--Add/Edit Section: start-->
-    <EditForm Model="articleModel" OnValidSubmit="HandleValidSubmit" Context="articleContext">
-      <DataAnnotationsValidator />
-      <ValidationSummary />
+<CascadingBlazoredModal>
+  <AuthorizeView>
+    <NotAuthorized>
+      <p>@Constants.NOT_AUTH_MESSAGE</p>
+    </NotAuthorized>
+    <Authorized>
+      <h3>@(IsEditMode ? "Edit Article" : "Create New Article")</h3>
+      <!--Add/Edit Section: start-->
+      <EditForm Model="articleModel" OnValidSubmit="HandleValidSubmit" Context="articleContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-      <!-- Title -->
-      <div class="mb-3">
-        <label class="form-label">Title*</label>
-        <InputText class="form-control" @bind-Value="articleModel.Title" />
-        <ValidationMessage For="@(() => articleModel.Title)" />
-      </div>
+        <!-- Title -->
+        <div class="mb-3">
+          <label class="form-label">Title*</label>
+          <InputText class="form-control" @bind-Value="articleModel.Title" />
+          <ValidationMessage For="@(() => articleModel.Title)" />
+        </div>
 
-      <!-- Content -->
-      <div class="mb-3">
-        <label class="form-label">Content (HTML Markdown)*</label>
-        <InputTextArea class="form-control" @bind-Value="articleModel.Content" rows="8" />
-        <ValidationMessage For="@(() => articleModel.Content)" />
-      </div>
+        <!-- Content -->
+        <div class="mb-3">
+          <label class="form-label">Content (HTML Markdown)*</label>
+          <InputTextArea class="form-control" @bind-Value="articleModel.Content" rows="8" />
+          <ValidationMessage For="@(() => articleModel.Content)" />
+        </div>
 
-      <!-- Image URL -->
-      <div class="mb-3">
-        <label class="form-label">Image URL*</label>
-        <InputText class="form-control" @bind-Value="articleModel.ImageUrl" />
-        <ValidationMessage For="@(() => articleModel.ImageUrl)" />
-      </div>
+        <!-- Image URL -->
+        <div class="mb-3">
+          <label class="form-label">Image URL*</label>
+          <InputText class="form-control" @bind-Value="articleModel.ImageUrl" />
+          <ValidationMessage For="@(() => articleModel.ImageUrl)" />
+        </div>
 
-      <!-- Image Alt Text -->
-      <div class="mb-3">
-        <label class="form-label">Image Alt Text</label>
-        <InputText class="form-control" @bind-Value="articleModel.ImageAltText" />
-      </div>
+        <!-- Image Alt Text -->
+        <div class="mb-3">
+          <label class="form-label">Image Alt Text</label>
+          <InputText class="form-control" @bind-Value="articleModel.ImageAltText" />
+        </div>
 
-      <!-- Key -->
-      <div class="mb-3">
-        <label class="form-label">Key*</label>
-        <InputText class="form-control" @bind-Value="articleModel.Key" @bind-Value:after="ValidateUniqueKey" />
-        <ValidationMessage For="@(() => articleModel.Key)" />
-        @if (isDuplicateKey)
-        {
-          <p><small class="text-danger">Key already exists. Please choose a different key.</small></p>
-        }
-      </div>
-
-      <!-- Is Featured -->
-      <div class="mb-3 form-check">
-        <InputCheckbox class="form-check-input" @bind-Value="articleModel.IsFeatured" />
-        <label class="form-check-label">Is Featured</label>
-      </div>
-
-      <!-- Tags -->
-      <div class="mb-3">
-        <label class="form-label">Tags (comma-separated)</label>
-        <InputText class="form-control" @bind-Value="tagsInput" />
-      </div>
-
-      <!-- Meta Title -->
-      <div class="mb-3">
-        <label class="form-label">Meta Title</label>
-        <InputText class="form-control" @bind-Value="articleModel.MetaTitle" />
-      </div>
-
-      <!-- Meta Description -->
-      <div class="mb-3">
-        <label class="form-label">Meta Description</label>
-        <InputTextArea class="form-control" @bind-Value="articleModel.MetaDescription" rows="3" />
-      </div>
-
-      <!-- Meta Keywords -->
-      <div class="mb-3">
-        <label class="form-label">Meta Keywords</label>
-        <InputText class="form-control" @bind-Value="articleModel.MetaKeywords" />
-      </div>
-
-      <!-- Editor Selection Dropdown -->
-      <div class="mb-3">
-        <label class="form-label">Select Editor</label>
-        <InputSelect class="form-select" @bind-Value="selectedEditorId" @bind-Value:after="OnEditorSelected">
-          <option value="">-- Select an Editor --</option>
-          @foreach (var editor in editors)
+        <!-- Key -->
+        <div class="mb-3">
+          <label class="form-label">Key*</label>
+          <InputText class="form-control" @bind-Value="articleModel.Key" @bind-Value:after="ValidateUniqueKey" />
+          <ValidationMessage For="@(() => articleModel.Key)" />
+          @if (isDuplicateKey)
           {
-            <option value="@editor.Id">@editor.Name</option>
+            <p><small class="text-danger">Key already exists. Please choose a different key.</small></p>
           }
-        </InputSelect>
-      </div>
+        </div>
 
-      <!-- Display Selected Editor's Image -->
-      @if (selectedEditorId != string.Empty)
+        <!-- Is Featured -->
+        <div class="mb-3 form-check">
+          <InputCheckbox class="form-check-input" @bind-Value="articleModel.IsFeatured" />
+          <label class="form-check-label">Is Featured</label>
+        </div>
+
+        <!-- Tags -->
+        <div class="mb-3">
+          <label class="form-label">Tags (comma-separated)</label>
+          <InputText class="form-control" @bind-Value="tagsInput" />
+        </div>
+
+        <!-- Meta Title -->
+        <div class="mb-3">
+          <label class="form-label">Meta Title</label>
+          <InputText class="form-control" @bind-Value="articleModel.MetaTitle" />
+        </div>
+
+        <!-- Meta Description -->
+        <div class="mb-3">
+          <label class="form-label">Meta Description</label>
+          <InputTextArea class="form-control" @bind-Value="articleModel.MetaDescription" rows="3" />
+        </div>
+
+        <!-- Meta Keywords -->
+        <div class="mb-3">
+          <label class="form-label">Meta Keywords (comma-separated)</label>
+          <InputText class="form-control" @bind-Value="articleModel.MetaKeywords" />
+        </div>
+
+        <!-- Editor Selection Dropdown -->
+        <div class="mb-3">
+          <label class="form-label">Select Editor</label>
+          <InputSelect class="form-select" @bind-Value="selectedEditorId" @bind-Value:after="OnEditorSelected">
+            <option value="">-- Select an Editor --</option>
+            @foreach (var editor in editors)
+            {
+              <option value="@editor.Id">@editor.Name</option>
+            }
+          </InputSelect>
+        </div>
+
+        <!-- Display Selected Editor's Image -->
+        @if (selectedEditorId != string.Empty)
+        {
+          var selectedEditor = editors.FirstOrDefault(e => e.Id == selectedEditorId);
+          if (selectedEditor != null && !string.IsNullOrEmpty(selectedEditor.ImageUrl))
+          {
+            <div class="mb-3 text-center">
+              <img src="@selectedEditor.ImageUrl" alt="@selectedEditor.Name" class="img-thumbnail" style="max-width: 150px;" />
+            </div>
+          }
+        }
+
+        <!-- Editor Details -->
+        <div class="mb-3">
+          <label class="form-label">Editor Name*</label>
+          <InputText class="form-control" @bind-Value="articleModel.EditorName" />
+          <ValidationMessage For="@(() => articleModel.EditorName)" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Editor Email*</label>
+          <InputText class="form-control" @bind-Value="articleModel.EditorEmail" />
+          <ValidationMessage For="@(() => articleModel.EditorEmail)" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Editor Bio</label>
+          <InputTextArea class="form-control" @bind-Value="articleModel.EditorBio" rows="3" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Editor Image URL*</label>
+          <InputText class="form-control" @bind-Value="articleModel.EditorImageUrl" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Image Alt Text</label>
+          <InputText class="form-control" @bind-Value="articleModel.EditorImageAltText" />
+        </div>
+
+        <!-- Submit and Cancel Buttons -->
+        <div class="text-center">
+          <button type="button" class="btn btn-secondary" @onclick="PreviewArticle">Preview</button>
+          <button type="submit" class="btn btn-primary">@(IsEditMode ? "Update Article" : "Create Article")</button>
+          @if (IsEditMode)
+          {
+            <button type="button" class="btn btn-secondary ms-2" @onclick="CancelEdit">Cancel</button>
+          }
+        </div>
+      </EditForm>
+
+      <!-- Submission Message -->
+      @if (submissionMessage != null)
       {
-        var selectedEditor = editors.FirstOrDefault(e => e.Id == selectedEditorId);
-        if (selectedEditor != null && !string.IsNullOrEmpty(selectedEditor.ImageUrl))
-        {
-          <div class="mb-3 text-center">
-            <img src="@selectedEditor.ImageUrl" alt="@selectedEditor.Name" class="img-thumbnail" style="max-width: 150px;" />
-          </div>
-        }
+        <div class="alert @submissionMessageClass mt-3" role="alert">
+          @submissionMessage
+        </div>
       }
-
-      <!-- Editor Details -->
-      <div class="mb-3">
-        <label class="form-label">Editor Name*</label>
-        <InputText class="form-control" @bind-Value="articleModel.EditorName" />
-        <ValidationMessage For="@(() => articleModel.EditorName)" />
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Editor Email*</label>
-        <InputText class="form-control" @bind-Value="articleModel.EditorEmail" />
-        <ValidationMessage For="@(() => articleModel.EditorEmail)" />
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Editor Bio</label>
-        <InputTextArea class="form-control" @bind-Value="articleModel.EditorBio" rows="3" />
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Editor Image URL*</label>
-        <InputText class="form-control" @bind-Value="articleModel.EditorImageUrl" />
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Image Alt Text</label>
-        <InputText class="form-control" @bind-Value="articleModel.EditorImageAltText" />
-      </div>
-
-      <!-- Submit and Cancel Buttons -->
-      <div class="text-center">
-        <button type="submit" class="btn btn-primary">@(IsEditMode ? "Update Article" : "Create Article")</button>
-        @if (IsEditMode)
-        {
-          <button type="button" class="btn btn-secondary ms-2" @onclick="CancelEdit">Cancel</button>
-        }
-      </div>
-    </EditForm>
-
-    <!-- Submission Message -->
-    @if (submissionMessage != null)
-    {
-      <div class="alert @submissionMessageClass mt-3" role="alert">
-        @submissionMessage
-      </div>
-    }
-    <!--Add/Edit Section: end-->
-  </Authorized>
-</AuthorizeView>
+      <!--Add/Edit Section: end-->
+    </Authorized>
+  </AuthorizeView>
+</CascadingBlazoredModal>
 
 @code {
   [Parameter]
@@ -182,11 +188,14 @@
   private NavigationManager Navigation { get; set; } = default!;
 
   [CascadingParameter]
-  private Task<AuthenticationState> authenticationStateTask { get; set; } = default!;
+  private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+  [Inject]
+  public IModalService Modal { get; set; } = default!;
 
   protected override async Task OnInitializedAsync()
   {
-    var authState = await authenticationStateTask;
+    var authState = await AuthenticationStateTask;
     var user = authState.User;
 
     if (user.Identity?.IsAuthenticated ?? false)
@@ -236,6 +245,23 @@
         submissionMessageClass = "alert-danger";
       }
     }
+  }
+
+  private void PreviewArticle()
+  {
+    var options = new ModalOptions()
+      {
+        Class = "bg-body modal-fullscreen modal-xl p-2",
+        AnimationType = ModalAnimationType.PopIn,
+        DisableBackgroundCancel = false,
+        HideCloseButton = false,
+        HideHeader = false,
+        Size = ModalSize.ExtraLarge,
+      };
+    var modalParams = new ModalParameters();
+    modalParams.Add(nameof(ArticleView.Article), GetArticle());
+    modalParams.Add(nameof(ArticleView.ShowEditButton), false);
+    Modal.Show<ArticleView>("Preview", modalParams, options);
   }
 
   private async Task HandleValidSubmit()
@@ -289,28 +315,7 @@
       editorImageAltText = articleModel.EditorImageAltText;
     }
 
-    var article = new Article
-      {
-        Title = articleModel.Title.ToTitleCase(),
-        ContentMarkdown = articleModel.Content,
-        ImageUrl = articleModel.ImageUrl,
-        ImageAltText = articleModel.ImageAltText,
-        Key = articleModel.Key.ToSlug(),
-        IsFeatured = articleModel.IsFeatured,
-        Tags = tags,
-        MetaTitle = articleModel.MetaTitle?.ToTitleCase(),
-        MetaDescription = articleModel.MetaDescription,
-        MetaKeywords = articleModel.MetaKeywords,
-        Editor = new Editor
-        {
-          Id = selectedEditorId,
-          Name = articleModel.EditorName,
-          Email = articleModel.EditorEmail,
-          Bio = articleModel.EditorBio,
-          ImageUrl = articleModel.ImageUrl,
-          ImageAltText = articleModel.ImageAltText
-        }
-      };
+    var article = GetArticle();
 
     var response = await HttpClient.PostAsJsonAsync("api/articles", article);
 
@@ -366,4 +371,32 @@
     isDuplicateKey = !isUnique;
     StateHasChanged();
   }
+
+  private Article GetArticle()
+  {
+    return new Article
+      {
+        Title = articleModel.Title.ToTitleCase(),
+        ContentMarkdown = articleModel.Content,
+        ImageUrl = articleModel.ImageUrl,
+        ImageAltText = articleModel.ImageAltText,
+        Key = articleModel.Key.ToSlug(),
+        IsFeatured = articleModel.IsFeatured,
+        Tags = GetTags(),
+        MetaTitle = articleModel.MetaTitle?.ToTitleCase(),
+        MetaDescription = articleModel.MetaDescription,
+        MetaKeywords = articleModel.MetaKeywords,
+        Editor = new Editor
+        {
+          Id = selectedEditorId,
+          Name = articleModel.EditorName,
+          Email = articleModel.EditorEmail,
+          Bio = articleModel.EditorBio,
+          ImageUrl = articleModel.ImageUrl,
+          ImageAltText = articleModel.ImageAltText
+        }
+      };
+  }
+  private List<string> GetTags() => tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => t.Trim().ToLower()).ToList();
 }
