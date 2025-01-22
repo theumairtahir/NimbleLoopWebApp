@@ -47,6 +47,8 @@ public class ReadImage(ILogger<ReadImage> logger, BlobServiceClient blobServiceC
 		{
 			if (path is not null)
 				imageName = $"{path}/{imageName}";
+			else
+				imageName = $"1920x1080/{imageName}";
 			var blobClient = containerClient.GetBlobClient(imageName);
 
 			if (await blobClient.ExistsAsync( ))
