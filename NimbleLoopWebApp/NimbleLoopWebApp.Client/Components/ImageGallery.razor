@@ -25,7 +25,21 @@
     </div>
   </div>
 
-  <button type="submit" class="btn btn-primary">Upload</button>
+  <button type="submit" class="btn btn-primary" disabled="@isUploading">
+    @if (isUploading)
+    {
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <text>
+        Uploading...
+      </text>
+    }
+    else
+    {
+      <text>
+        Upload
+      </text>
+    }
+  </button>
 </EditForm>
 
 @if (images is null)
@@ -60,6 +74,7 @@ else
   private UploadModel uploadModel = new();
   private string? uploadMessage;
   private string uploadMessageClass = "alert-success";
+  private bool isUploading = false;
 
   protected override async Task OnInitializedAsync()
   {
@@ -78,38 +93,43 @@ else
   {
     if (uploadModel.ImageFile is null)
     {
-      uploadMessage = "Please select an image file.";
-      uploadMessageClass = "alert-danger";
+      ShowUploadMessage("Please select an image file.", "alert-danger");
       return;
     }
+    isUploading = true;
+    try
+    {
+      var client = HttpClientFactory.CreateClient(Constants.BASE_CLIENT);
+      using var content = new MultipartFormDataContent();
+      var maxAllowedSize = 8 * 1024 * 1024; // 8 MB
+      if (uploadModel.ImageFile.Size > maxAllowedSize)
+      {
+        ShowUploadMessage("The image file size exceeds the maximum allowed size of 8 MB.", "alert-danger");
+        return;
+      }
+      var streamContent = new StreamContent(uploadModel.ImageFile.OpenReadStream(maxAllowedSize));
+      streamContent.Headers.ContentType = new MediaTypeHeaderValue(uploadModel.ImageFile.ContentType);
+      content.Add(streamContent, "image", uploadModel.ImageFile.Name);
+      var response = await client.PostAsync($"api/save-gallery-image/{uploadModel.ImageName}", content);
 
-    var client = HttpClientFactory.CreateClient(Constants.BASE_CLIENT);
-    using var content = new MultipartFormDataContent();
-    var maxAllowedSize = 8 * 1024 * 1024; // 8 MB
-    if (uploadModel.ImageFile.Size > maxAllowedSize)
-    {
-      ShowUploadMessage("The image file size exceeds the maximum allowed size of 8 MB.", "alert-danger");
-      return;
+      if (response.IsSuccessStatusCode)
+      {
+        ShowUploadMessage("Image uploaded successfully!", "alert-success");
+        await LoadImages();
+      }
+      else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+      {
+        ShowUploadMessage("Image name already exists. Please choose a different name.", "alert-danger");
+      }
+      else
+      {
+        ShowUploadMessage("An error occurred while uploading the image.", "alert-danger");
+      }
     }
-    var streamContent = new StreamContent(uploadModel.ImageFile.OpenReadStream(maxAllowedSize));
-    streamContent.Headers.ContentType = new MediaTypeHeaderValue(uploadModel.ImageFile.ContentType);
-    content.Add(streamContent, "image", uploadModel.ImageFile.Name);
-    var response = await client.PostAsync($"api/save-gallery-image/{uploadModel.ImageName}", content);
-
-    if (response.IsSuccessStatusCode)
+    finally
     {
-      ShowUploadMessage("Image uploaded successfully!", "alert-success");
-      await LoadImages();
+      isUploading = false;
     }
-    else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
-    {
-      ShowUploadMessage("Image name already exists. Please choose a different name.", "alert-danger");
-    }
-    else
-    {
-      ShowUploadMessage("An error occurred while uploading the image.", "alert-danger");
-    }
-
     void ShowUploadMessage(string message, string messageClass)
     {
       uploadMessage = message;
