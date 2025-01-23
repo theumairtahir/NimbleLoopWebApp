@@ -1,5 +1,38 @@
-﻿<h3>ImageGallery</h3>
+﻿@page "/image-gallery"
+@using System.Net.Http.Json
+@inject IHttpClientFactory HttpClientFactory
+@rendermode InteractiveWebAssembly
+
+<h3>Image Gallery</h3>
+
+@if (images is null)
+{
+  <p>Loading...</p>
+}
+else if (!images.Any())
+{
+  <p>No images available.</p>
+}
+else
+{
+  <div class="row">
+    @foreach (var image in images)
+    {
+      <div class="col-md-2 mb-3">
+        <img src="@image" alt="Gallery Image" class="img-thumbnail" style="max-width: 100%;" />
+      </div>
+    }
+  </div>
+}
 
 @code {
+  private List<string>? images;
 
+  protected override async Task OnInitializedAsync()
+  {
+    var client = HttpClientFactory.CreateClient(Constants.BASE_CLIENT);
+    var images = await client.GetFromJsonAsync<List<string>>("api/list-gallery");
+    this.images = [];
+    images?.ForEach(x => this.images.Add(x + "&size=150x150"));
+  }
 }

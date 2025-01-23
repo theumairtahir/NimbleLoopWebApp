@@ -45,7 +45,9 @@ public class B2CAuthorizationMessageHandler : DelegatingHandler
 		{
 			$"{apiBaseUrl}api/articles",
 			$"{apiBaseUrl}api/validate-unique-key",
-			$"{apiBaseUrl}api/editors"
+			$"{apiBaseUrl}api/editors",
+			$"{apiBaseUrl}api/save-gallery-image",
+			$"{apiBaseUrl}api/list-gallery",
             // Add other authenticated endpoints here
         };
 		var scope = _configuration["DownstreamApi:Scope"] ?? string.Empty;
