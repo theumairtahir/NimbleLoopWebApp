@@ -145,7 +145,7 @@ else
 
   private class UploadModel
   {
-    [Required]
+    [Required, MaxLength(45, ErrorMessage = "Length should be less than 46 letters", ErrorMessageResourceName = "Image Name")]
     public string ImageName { get; set; } = string.Empty;
 
     [Required]
