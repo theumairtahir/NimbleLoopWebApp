@@ -2,7 +2,6 @@ using Blazored.Modal;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using NimbleLoopWebApp.Client;
 using NimbleLoopWebApp.Client.HttpClients;
-using NimbleLoopWebApp.Client.Interops;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddCascadingAuthenticationState( );

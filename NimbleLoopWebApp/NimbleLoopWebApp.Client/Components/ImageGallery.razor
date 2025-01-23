@@ -2,6 +2,8 @@
 @using System.Net.Http.Json
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Headers
+@using Blazored.Modal
+@using Blazored.Modal.Services
 @using NimbleLoopWebApp.Client.Interops
 @inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveWebAssembly
@@ -55,8 +57,8 @@ else
   <div class="row">
     @foreach (var image in images)
     {
-      <div class="col-md-2 mb-3">
-        <img src="@image" alt="Gallery Image" class="img-thumbnail" style="max-width: 100%;" />
+      <div class="col-md-2 mb-3" @onclick="() => Modal.CloseAsync(ModalResult.Ok(image))" style="cursor: pointer">
+        <img src="@(image+"&size=150x150")" alt="Gallery Image" class="img-thumbnail" style="max-width: 100%;" />
       </div>
     }
   </div>
@@ -76,6 +78,9 @@ else
   private string uploadMessageClass = "alert-success";
   private bool isUploading = false;
 
+  [CascadingParameter]
+  BlazoredModalInstance Modal { get; set; } = default!;
+
   protected override async Task OnInitializedAsync()
   {
     await LoadImages();
@@ -84,9 +89,7 @@ else
   private async Task LoadImages()
   {
     var client = HttpClientFactory.CreateClient(Constants.BASE_CLIENT);
-    var images = await client.GetFromJsonAsync<List<string>>("api/list-gallery");
-    this.images = new List<string>();
-    images?.ForEach(x => this.images.Add(x + "&size=150x150"));
+    images = await client.GetFromJsonAsync<List<string>>("api/list-gallery");
   }
 
   private async Task HandleValidSubmit()

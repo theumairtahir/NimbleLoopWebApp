@@ -383,7 +383,7 @@
     StateHasChanged();
   }
 
-  private void OpenGallery()
+  private async void OpenGallery()
   {
     var options = new ModalOptions()
       {
@@ -397,6 +397,12 @@
       };
     var modalParams = new ModalParameters();
     var modal = Modal.Show<ImageGallery>("Select Image", modalParams, options);
+    var result = await modal.Result;
+    if (result.Confirmed)
+    {
+      articleModel.ImageUrl = result.Data?.ToString()!;
+      StateHasChanged();
+    }
   }
 
 
