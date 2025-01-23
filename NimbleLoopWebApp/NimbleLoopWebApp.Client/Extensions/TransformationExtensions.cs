@@ -26,4 +26,22 @@ public static class TransformationExtensions
 			return string.Empty;
 		return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value.ToLowerInvariant( ));
 	}
+
+	public static string ImageWithSize(this string? imageUrl, ImageSizes? size = null)
+	{
+		if (string.IsNullOrEmpty(imageUrl))
+			return string.Empty;
+		if (size is null)
+			return imageUrl;
+		return imageUrl + $"&size={size.Value.ToString( ).TrimStart('S')}";
+	}
+
+	public enum ImageSizes
+	{
+		S100x100,
+		S150x150,
+		S1200x630,
+		S1280x720,
+		S1920x1080,
+	}
 }

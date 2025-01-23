@@ -5,6 +5,8 @@
 @using Blazored.Modal
 @using Blazored.Modal.Services
 @using NimbleLoopWebApp.Client.Interops
+@using NimbleLoopWebApp.Client.Extensions
+@using static NimbleLoopWebApp.Client.Extensions.TransformationExtensions
 @inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveWebAssembly
 
@@ -58,7 +60,7 @@ else
     @foreach (var image in images)
     {
       <div class="col-md-2 mb-3" @onclick="() => Modal.CloseAsync(ModalResult.Ok(image))" style="cursor: pointer">
-        <img src="@(image+"&size=150x150")" alt="Gallery Image" class="img-thumbnail" style="max-width: 100%;" />
+        <img src="@image.ImageWithSize(ImageSizes.S150x150)" alt="Gallery Image" class="img-thumbnail" style="max-width: 100%;" />
       </div>
     }
   </div>
