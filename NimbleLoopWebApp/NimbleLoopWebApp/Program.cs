@@ -161,7 +161,7 @@ app.MapPost("api/save-gallery-image/{imageName}", async (IHttpClientFactory http
 
 	var response = await client.PostAsync($"/api/SaveImage/{imageName}?path={Constants.GALLERY_PATH}", content);
 	return response.IsSuccessStatusCode ? Results.Ok( ) : Results.StatusCode((int)response.StatusCode);
-}).RequireAuthorization( );
+}).RequireAuthorization( ).DisableAntiforgery( );
 
 app.MapGet("api/categories", async (NimbleLoopDbContext dbContext) =>
 {

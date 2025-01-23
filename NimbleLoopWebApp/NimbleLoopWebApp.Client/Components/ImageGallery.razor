@@ -1,9 +1,32 @@
 ﻿@page "/image-gallery"
 @using System.Net.Http.Json
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http.Headers
+@using NimbleLoopWebApp.Client.Interops
 @inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveWebAssembly
 
 <h3>Image Gallery</h3>
+
+<EditForm Model="uploadModel" OnValidSubmit="HandleValidSubmit">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+  <div class="mb-3 row">
+    <div class="col-md-6">
+      <label for="imageName" class="form-label">Image Name</label>
+      <InputText id="imageName" class="form-control" @bind-Value="uploadModel.ImageName" maxLength="45" />
+      <ValidationMessage For="@(() => uploadModel.ImageName)" />
+    </div>
+
+    <div class="col-md-6">
+      <label for="imageFile" class="form-label">Select Image</label>
+      <InputFile id="imageFile" OnChange="HandleFileSelected" />
+      <ValidationMessage For="@(() => uploadModel.ImageFile)" />
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Upload</button>
+</EditForm>
 
 @if (images is null)
 {
@@ -25,14 +48,87 @@ else
   </div>
 }
 
+@if (!string.IsNullOrEmpty(uploadMessage))
+{
+  <div class="alert @uploadMessageClass mt-3" role="alert">
+    @uploadMessage
+  </div>
+}
+
 @code {
   private List<string>? images;
+  private UploadModel uploadModel = new();
+  private string? uploadMessage;
+  private string uploadMessageClass = "alert-success";
 
   protected override async Task OnInitializedAsync()
   {
+    await LoadImages();
+  }
+
+  private async Task LoadImages()
+  {
     var client = HttpClientFactory.CreateClient(Constants.BASE_CLIENT);
     var images = await client.GetFromJsonAsync<List<string>>("api/list-gallery");
-    this.images = [];
+    this.images = new List<string>();
     images?.ForEach(x => this.images.Add(x + "&size=150x150"));
+  }
+
+  private async Task HandleValidSubmit()
+  {
+    if (uploadModel.ImageFile is null)
+    {
+      uploadMessage = "Please select an image file.";
+      uploadMessageClass = "alert-danger";
+      return;
+    }
+
+    var client = HttpClientFactory.CreateClient(Constants.BASE_CLIENT);
+    using var content = new MultipartFormDataContent();
+    var maxAllowedSize = 8 * 1024 * 1024; // 8 MB
+    if (uploadModel.ImageFile.Size > maxAllowedSize)
+    {
+      ShowUploadMessage("The image file size exceeds the maximum allowed size of 8 MB.", "alert-danger");
+      return;
+    }
+    var streamContent = new StreamContent(uploadModel.ImageFile.OpenReadStream(maxAllowedSize));
+    streamContent.Headers.ContentType = new MediaTypeHeaderValue(uploadModel.ImageFile.ContentType);
+    content.Add(streamContent, "image", uploadModel.ImageFile.Name);
+    var response = await client.PostAsync($"api/save-gallery-image/{uploadModel.ImageName}", content);
+
+    if (response.IsSuccessStatusCode)
+    {
+      ShowUploadMessage("Image uploaded successfully!", "alert-success");
+      await LoadImages();
+    }
+    else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+    {
+      ShowUploadMessage("Image name already exists. Please choose a different name.", "alert-danger");
+    }
+    else
+    {
+      ShowUploadMessage("An error occurred while uploading the image.", "alert-danger");
+    }
+
+    void ShowUploadMessage(string message, string messageClass)
+    {
+      uploadMessage = message;
+      uploadMessageClass = messageClass;
+      StateHasChanged();
+    }
+  }
+
+  private void HandleFileSelected(InputFileChangeEventArgs e)
+  {
+    uploadModel.ImageFile = e.File;
+  }
+
+  private class UploadModel
+  {
+    [Required]
+    public string ImageName { get; set; } = string.Empty;
+
+    [Required]
+    public IBrowserFile? ImageFile { get; set; }
   }
 }

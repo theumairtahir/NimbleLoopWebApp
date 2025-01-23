@@ -20,4 +20,8 @@
 	  <ProjectReference Include="..\..\NimbleLoop.Domain\NimbleLoop.Domain.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\js\modules\" />
+	</ItemGroup>
+
 </Project>
