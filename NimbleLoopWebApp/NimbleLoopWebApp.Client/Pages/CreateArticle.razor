@@ -48,9 +48,13 @@
           <!-- Image URL -->
           <div class="mb-3">
             <label class="form-label">Image URL*</label>
-            <InputText class="form-control" @bind-Value="articleModel.ImageUrl" />
+            <div class="input-group">
+              <InputText class="form-control" @bind-Value="articleModel.ImageUrl" />
+              <button type="button" class="btn btn-outline-secondary" @onclick="OpenGallery">Open Gallery</button>
+            </div>
             <ValidationMessage For="@(() => articleModel.ImageUrl)" />
           </div>
+
 
           <!-- Image Alt Text -->
           <div class="mb-3">
@@ -378,6 +382,23 @@
     isDuplicateKey = !isUnique;
     StateHasChanged();
   }
+
+  private void OpenGallery()
+  {
+    var options = new ModalOptions()
+      {
+        Class = "bg-body modal-fullscreen p-2",
+        AnimationType = ModalAnimationType.FadeInOut,
+        DisableBackgroundCancel = true,
+        HideCloseButton = false,
+        HideHeader = false,
+        Size = ModalSize.Large,
+        Position = ModalPosition.Middle
+      };
+    var modalParams = new ModalParameters();
+    var modal = Modal.Show<ImageGallery>("Select Image", modalParams, options);
+  }
+
 
   private Article GetArticle()
   {
