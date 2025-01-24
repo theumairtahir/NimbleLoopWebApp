@@ -390,19 +390,7 @@
 
   private async void OpenGallery()
   {
-    var options = new ModalOptions()
-      {
-        Class = "bg-body modal-fullscreen p-2",
-        AnimationType = ModalAnimationType.FadeInOut,
-        DisableBackgroundCancel = true,
-        HideCloseButton = false,
-        HideHeader = false,
-        Size = ModalSize.Large,
-        Position = ModalPosition.Middle
-      };
-    var modalParams = new ModalParameters();
-    var modal = Modal.Show<ImageGallery>("Select Image", modalParams, options);
-    var result = await modal.Result;
+    var result = await ShowImageGallery();
     if (result.Confirmed)
     {
       articleModel.ImageUrl = result.Data?.ToString()!;
@@ -411,6 +399,16 @@
   }
 
   private async void OpenEditorImageGallery()
+  {
+    var result = await ShowImageGallery();
+    if (result.Confirmed)
+    {
+      articleModel.EditorImageUrl = result.Data?.ToString()!;
+      StateHasChanged();
+    }
+  }
+
+  private async Task<ModalResult> ShowImageGallery()
   {
     var options = new ModalOptions()
       {
@@ -424,12 +422,7 @@
       };
     var modalParams = new ModalParameters();
     var modal = Modal.Show<ImageGallery>("Select Image", modalParams, options);
-    var result = await modal.Result;
-    if (result.Confirmed)
-    {
-      articleModel.EditorImageUrl = result.Data?.ToString()!;
-      StateHasChanged();
-    }
+    return await modal.Result;
   }
 
   private Article GetArticle()
