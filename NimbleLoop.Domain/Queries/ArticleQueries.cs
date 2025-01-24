@@ -10,5 +10,11 @@ public static class ArticleQueries
 			queryableArticles = queryableArticles.Take(top.Value);
 		return queryableArticles;
 	}
-	public static IQueryable<Article> GetFeaturedArticles(this IQueryable<Article> articles, int? top = null) => articles.GetArticles(top).Where(x => x.IsFeatured);
+	public static IQueryable<Article> GetFeaturedArticles(this IQueryable<Article> articles, int? top = null)
+	{
+		var featuredArticles = articles.GetArticles( ).Where(x => x.IsFeatured);
+		if (top != null)
+			featuredArticles = featuredArticles.Take(top.Value);
+		return featuredArticles;
+	}
 }
