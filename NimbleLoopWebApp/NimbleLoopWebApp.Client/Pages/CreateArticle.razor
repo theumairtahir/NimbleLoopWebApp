@@ -145,9 +145,14 @@
             <InputTextArea class="form-control" @bind-Value="articleModel.EditorBio" rows="3" />
           </div>
 
+          <!-- Editor Image URL -->
           <div class="mb-3">
             <label class="form-label">Editor Image URL*</label>
-            <InputText class="form-control" @bind-Value="articleModel.EditorImageUrl" />
+            <div class="input-group">
+              <InputText class="form-control" @bind-Value="articleModel.EditorImageUrl" />
+              <button type="button" class="btn btn-outline-secondary" @onclick="OpenEditorImageGallery">Open Gallery</button>
+            </div>
+            <ValidationMessage For="@(() => articleModel.EditorImageUrl)" />
           </div>
 
           <div class="mb-3">
@@ -405,6 +410,27 @@
     }
   }
 
+  private async void OpenEditorImageGallery()
+  {
+    var options = new ModalOptions()
+      {
+        Class = "bg-body modal-fullscreen p-2",
+        AnimationType = ModalAnimationType.FadeInOut,
+        DisableBackgroundCancel = true,
+        HideCloseButton = false,
+        HideHeader = false,
+        Size = ModalSize.Large,
+        Position = ModalPosition.Middle
+      };
+    var modalParams = new ModalParameters();
+    var modal = Modal.Show<ImageGallery>("Select Image", modalParams, options);
+    var result = await modal.Result;
+    if (result.Confirmed)
+    {
+      articleModel.EditorImageUrl = result.Data?.ToString()!;
+      StateHasChanged();
+    }
+  }
 
   private Article GetArticle()
   {
