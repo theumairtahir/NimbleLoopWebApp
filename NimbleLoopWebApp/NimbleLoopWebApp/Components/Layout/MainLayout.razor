@@ -2,24 +2,25 @@
 @inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
+  <div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href=""><img src="@Assets["images/logo.png"]" alt="NimbleLoop Logo" style="width:118px" /></a>
+      <div class="auth">
+        <LoginDisplay />
+        <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+      </div>
     </div>
+  </div>
 
-    <main>
-        <div class="top-row px-4 auth">
-            <LoginDisplay />
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+  <main>
+    <article class="content px-4">
+      @Body
+    </article>
+  </main>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+  An unhandled error has occurred.
+  <a href="." class="reload">Reload</a>
+  <span class="dismiss">🗙</span>
 </div>
