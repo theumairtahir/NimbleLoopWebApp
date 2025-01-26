@@ -48,7 +48,7 @@
     var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
 
     if (!string.IsNullOrWhiteSpace(SearchTerm))
-      query["query"] = SearchTerm[0..99].Trim();
+      query["query"] = SearchTerm[0..Math.Min(SearchTerm.Length, 100)].Trim();
     if (!string.IsNullOrWhiteSpace(SelectedCategory))
       query["category"] = SelectedCategory;
 
