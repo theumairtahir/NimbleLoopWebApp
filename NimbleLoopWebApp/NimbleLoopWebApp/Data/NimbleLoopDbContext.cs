@@ -39,43 +39,32 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options, 
 
 	public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 	{
-		var addedEntries = ChangeTracker.Entries( )
-		.Where(e => e.State == EntityState.Added)
-		.ToList( );
-
-		foreach (var entry in addedEntries)
+		foreach (var entry in ChangeTracker.Entries( ))
 		{
-			if (entry.Entity is BaseEntity entity)
-			{
-				var exists = await EntityExistsInDatabaseAsync(entity, entry.Entity.GetType( ), cancellationToken);
-				if (exists)
-				{
-					entry.State = EntityState.Modified;
-					continue;
-				}
+			if (entry.State is not EntityState.Modified && entry.State is not EntityState.Added)
+				continue;
 
+			if (entry.Entity is not BaseEntity entity)
+				continue;
+
+			var exists = await EntityExistsInDatabaseAsync(entity, entry.Entity.GetType( ), cancellationToken);
+			if (exists)
+			{
+				entry.State = EntityState.Modified;
+				entry.Property(nameof(BaseEntity.CreatedAt)).IsModified = false;
+				entry.Property(nameof(BaseEntity.CreatedBy)).IsModified = false;
+				entity.ModifiedAt = DateTime.UtcNow;
+				entity.ModifiedBy = string.IsNullOrEmpty(entity.ModifiedBy) ? SYSTEM_USER : entity.ModifiedBy;
+			}
+			else
+			{
+				entry.State = EntityState.Added;
 				if (string.IsNullOrEmpty(entity.Id))
 					entity.Id = ObjectId.GenerateNewId( ).ToString( );
 				entity.CreatedAt = DateTime.UtcNow;
 				entity.CreatedBy = string.IsNullOrEmpty(entity.CreatedBy) ? SYSTEM_USER : entity.CreatedBy;
 			}
 		}
-
-		var modifiedEntries = ChangeTracker.Entries( )
-			.Where(e => e.State == EntityState.Modified)
-			.ToList( );
-
-		foreach (var entry in modifiedEntries)
-		{
-			if (entry.Entity is BaseEntity entity)
-			{
-				entry.Property(nameof(BaseEntity.CreatedAt)).IsModified = false;
-				entry.Property(nameof(BaseEntity.CreatedBy)).IsModified = false;
-				entity.ModifiedAt = DateTime.UtcNow;
-				entity.ModifiedBy = string.IsNullOrEmpty(entity.ModifiedBy) ? SYSTEM_USER : entity.ModifiedBy;
-			}
-		}
-
 		return await base.SaveChangesAsync(cancellationToken);
 	}
 
@@ -105,7 +94,8 @@ public class NimbleLoopDbContext(DbContextOptions<NimbleLoopDbContext> options, 
 	{
 		var collectionName = entityType.GetCollectionName( );
 		var collection = _mongoDatabase.GetCollection<BaseEntity>(collectionName);
-
+		if (string.IsNullOrEmpty(entity.Id))
+			return false;
 		var filter = Builders<BaseEntity>.Filter.Eq("_id", ObjectId.Parse(entity.Id));
 		var count = await collection.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
 		return count > 0;
