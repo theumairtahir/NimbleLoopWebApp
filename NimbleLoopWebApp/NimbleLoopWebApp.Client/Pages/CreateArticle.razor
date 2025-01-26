@@ -67,7 +67,7 @@
 
             <!-- Key -->
             <div class="mb-3">
-              <label class="form-label">Key*</label>
+              <label class="form-label">Url Slug*</label>
               <InputText class="form-control" @bind-Value="articleModel.Key" @bind-Value:after="ValidateUniqueKey" />
               <ValidationMessage For="@(() => articleModel.Key)" />
               @if (isDuplicateKey)
