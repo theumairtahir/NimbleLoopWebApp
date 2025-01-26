@@ -91,9 +91,10 @@ else
   {
     await base.OnInitializedAsync();
     article = await DbContext.Articles.FirstOrDefaultAsync(x => x.Key == Key);
-    if (article is not null)
-      article.Editor = (await DbContext.Editors.FindAsync(article.EditorId))!;
-    latestArticles = await DbContext.Articles.GetArticles(4).ToListAsync();
+    if (article is null)
+      return;
+    article.Editor = (await DbContext.Editors.FindAsync(article.EditorId))!;
+    latestArticles = await DbContext.Articles.Where(x => x.Id != article.Id).OrderByDescending(x => x.CreatedAt).Take(4).ToListAsync();
   }
 
   private string GetArticleUri(string key)
