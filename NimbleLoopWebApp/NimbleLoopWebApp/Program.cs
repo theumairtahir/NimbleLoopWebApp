@@ -1,8 +1,8 @@
-using Blazored.Modal;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using MongoDB.Driver;
 using NimbleLoop.Domain.Entities;
 using NimbleLoopWebApp.Client.Extensions;
 using NimbleLoopWebApp.Client.ViewModels;
@@ -23,19 +23,19 @@ builder.Services.AddAuthorization( );
 
 builder.Services.AddCascadingAuthenticationState( );
 
-builder.Services.AddScoped(sp =>
+builder.Services.AddTransient(sp =>
 {
-	var options = new DbContextOptionsBuilder<NimbleLoopDbContext>( ).UseMongoDB(builder.Configuration["DbConfig:ConnectionString"]!, builder.Configuration["DbConfig:DatabaseName"]!).Options;
-	return new NimbleLoopDbContext(options);
+	var client = new MongoClient(builder.Configuration["DbConfig:ConnectionString"]!);
+	return client.GetDatabase(builder.Configuration["DbConfig:DatabaseName"]!);
 });
+
+builder.Services.AddMongoDB<NimbleLoopDbContext>(new MongoClient(builder.Configuration["DbConfig:ConnectionString"]!), builder.Configuration["DbConfig:DatabaseName"]!);
 
 builder.Services.AddHttpClient(Constants.FUNCTIONS_CLIENT, x =>
 {
 	x.BaseAddress = new Uri(builder.Configuration["Functions:BaseUrl"]!);
 	x.DefaultRequestHeaders.Add("x-functions-key", builder.Configuration["Functions:FunctionKey"]);
 });
-
-builder.Services.AddBlazoredModal( );
 
 var app = builder.Build( );
 
@@ -94,7 +94,7 @@ app.MapPost("api/articles", async (NimbleLoopDbContext dbContext, [FromBody] Art
 		var isDuplicateKey = await dbContext.Articles.AnyAsync(a => a.Key == article.Key);
 		if (isDuplicateKey)
 			return Results.BadRequest("Key must be unique");
-		await dbContext.Articles.AddAsync(article);
+		await dbContext.AddAsync(article);
 	}
 	else
 	{
