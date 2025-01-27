@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NimbleLoop.Domain", "Nimble
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NimbleLoopWebApp.Functions", "NimbleLoopWebApp.Functions\NimbleLoopWebApp.Functions.csproj", "{4C66AE06-E7AB-47D7-A1F8-EAFB4B111D15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazored.Modal", "..\..\Users\Umair Tahir\source\repos\Blazored.Modal\src\Blazored.Modal\Blazored.Modal.csproj", "{EE13A7B7-296D-4409-AA63-15F9D2837339}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{F5EAA0EF-C89A-4E1D-B186-68176C668DAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,8 +42,15 @@ Global
 		{4C66AE06-E7AB-47D7-A1F8-EAFB4B111D15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C66AE06-E7AB-47D7-A1F8-EAFB4B111D15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C66AE06-E7AB-47D7-A1F8-EAFB4B111D15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE13A7B7-296D-4409-AA63-15F9D2837339}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE13A7B7-296D-4409-AA63-15F9D2837339}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE13A7B7-296D-4409-AA63-15F9D2837339}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE13A7B7-296D-4409-AA63-15F9D2837339}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EE13A7B7-296D-4409-AA63-15F9D2837339} = {F5EAA0EF-C89A-4E1D-B186-68176C668DAA}
 	EndGlobalSection
 EndGlobal
