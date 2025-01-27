@@ -85,24 +85,55 @@ app.MapPost("api/contact", async (NimbleLoopDbContext dbContext, [FromBody] Home
 	return isNew ? Results.Created( ) : Results.Ok( );
 });
 
-app.MapPost("api/articles", async (NimbleLoopDbContext dbContext, [FromBody] Article article, ClaimsPrincipal User) =>
+app.MapPost("api/articles", async (NimbleLoopDbContext dbContext, [FromBody] Article article, ClaimsPrincipal user) =>
 {
-	var isNew = string.IsNullOrEmpty(article.Id);
+	var editor = article.Editor;
+	dbContext.Entry(article.Editor).State = EntityState.Detached;
+	article.Editor = null!;
+	var trackedEditor = dbContext.ChangeTracker.Entries<Editor>( )
+		.FirstOrDefault(e => e.Entity.Id == editor.Id)?.Entity;
 
-	if (isNew)
+	if (trackedEditor is not null)
+	{
+		dbContext.Entry(trackedEditor).CurrentValues.SetValues(editor);
+	}
+	else
+	{
+		var existingEditor = await dbContext.Editors
+			.AsNoTracking( )
+			.FirstOrDefaultAsync(e => e.Id == editor.Id);
+
+		if (existingEditor is not null)
+		{
+			dbContext.Editors.Attach(editor);
+			dbContext.Entry(editor).State = EntityState.Modified;
+		}
+		else
+		{
+			await dbContext.Editors.AddAsync(editor);
+		}
+	}
+	await dbContext.SaveChangesAsync(user);
+	article.EditorId = editor.Id;
+
+	var isNewArticle = string.IsNullOrEmpty(article.Id);
+	if (isNewArticle)
 	{
 		var isDuplicateKey = await dbContext.Articles.AnyAsync(a => a.Key == article.Key);
 		if (isDuplicateKey)
 			return Results.BadRequest("Key must be unique");
-		await dbContext.AddAsync(article);
+
+		await dbContext.Articles.AddAsync(article);
 	}
 	else
 	{
 		dbContext.Articles.Update(article);
 	}
-	await dbContext.SaveChangesAsync(User);
-	return isNew ? Results.Created( ) : Results.Ok( );
+
+	await dbContext.SaveChangesAsync(user);
+	return isNewArticle ? Results.Created( ) : Results.Ok( );
 }).RequireAuthorization( );
+
 
 app.MapGet("api/articles/{id}", async (NimbleLoopDbContext dbContext, [FromRoute] string id) =>
 {
