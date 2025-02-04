@@ -3,8 +3,10 @@
 @using NimbleLoop.Domain.Entities
 @using NimbleLoopWebApp.Data
 @using NimbleLoop.Domain.Queries
+@using WebAppConstants = NimbleLoopWebApp.Constants
 @attribute [StreamRendering]
-@inject NimbleLoopDbContext dbContext
+@inject NimbleLoopDbContext DbContext
+@inject ICacheService CacheService
 
 <PageTitle>Blogs - @NimbleLoopWebApp.Constants.APP_NAME</PageTitle>
 
@@ -86,16 +88,23 @@
   protected async override Task OnInitializedAsync()
   {
     await base.OnInitializedAsync();
-    featuredArticles = await dbContext.Articles.GetFeaturedArticles(4).ToListAsync();
-    articles = dbContext.Articles.GetArticles();
+    featuredArticles = await CacheService.GetOrCreateAsync(WebAppConstants.FEATURE_ARTICLES_CACHE, () => DbContext.Articles.GetFeaturedArticles(4).ToListAsync());
+    articles = DbContext.Articles.GetArticles();
+    bool isSelectedCategoryOrSearched = false;
     if (!string.IsNullOrEmpty(SelectedCategory))
+    {
       articles = articles.Where(x => x.Tags.Contains(SelectedCategory));
+      isSelectedCategoryOrSearched = true;
+    }
     if (!string.IsNullOrEmpty(SearchTerm))
+    {
       articles = articles.Where(x => x.Title.Contains(SearchTerm.ToTitleCase()));
-    var totalArticles = await articles.CountAsync();
+      isSelectedCategoryOrSearched = true;
+    }
+    var totalArticles = await CacheService.GetOrCreateAsync(WebAppConstants.ARTICLE_COUNT_CACHE, () => articles.CountAsync());
     totalPages = (totalArticles + pageSize - 1) / pageSize;
     currentPage = Page ?? 1;
-    filteredArticles = await articles.Skip((currentPage - 1) * pageSize).Take(pageSize).ToListAsync();
+    filteredArticles = isSelectedCategoryOrSearched || Page is not null ? await articles.Skip((currentPage - 1) * pageSize).Take(pageSize).ToListAsync() : await CacheService.GetOrCreateAsync(WebAppConstants.PAGE_ARTICLES_CACHE, async () => await articles.Take(pageSize).ToListAsync());
   }
 
   private string GetPaginationUri(int page)

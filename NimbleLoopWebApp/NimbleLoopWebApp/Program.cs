@@ -37,6 +37,9 @@ builder.Services.AddHttpClient(Constants.FUNCTIONS_CLIENT, x =>
 	x.DefaultRequestHeaders.Add("x-functions-key", builder.Configuration["Functions:FunctionKey"]);
 });
 
+builder.Services.AddMemoryCache( );
+builder.Services.AddSingleton<ICacheService, CacheService>( );
+
 var app = builder.Build( );
 
 // Configure the HTTP request pipeline.

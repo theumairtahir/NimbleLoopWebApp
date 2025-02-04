@@ -7,7 +7,8 @@
 @using NimbleLoop.Domain.Queries
 @using Constants = NimbleLoopWebApp.Constants
 @attribute [StreamRendering]
-@inject NimbleLoopDbContext dbContext
+@inject NimbleLoopDbContext DbContext
+@inject ICacheService CacheService
 
 <PageTitle>Home - @Constants.APP_NAME</PageTitle>
 
@@ -172,9 +173,7 @@
 
   protected override async Task OnInitializedAsync()
   {
-    var fetchedArticles = await dbContext.Articles
-        .GetArticles(4)
-        .ToListAsync();
+    var fetchedArticles = await CacheService.GetOrCreateAsync(Constants.TOP_ARTICLES_CACHE, () => DbContext.Articles.GetArticles(4).ToListAsync());
     articles = fetchedArticles.Select(a => new HomeArticleViewModel(a.Key, a.GetArticleTitle(), a.MetaDescription ?? string.Empty, a.ImageUrl, a.GetArticleImageAlt()))
        .ToList();
   }
