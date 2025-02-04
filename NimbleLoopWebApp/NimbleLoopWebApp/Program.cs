@@ -202,6 +202,8 @@ app.MapGet("api/categories", async (NimbleLoopDbContext dbContext) =>
 
 app.MapGet("api/comments/{id}", async (NimbleLoopDbContext dbContext, string id) => Results.Ok(await dbContext.Articles.Where(x => x.Id == id).Select(x => x.Comments).FirstAsync( )));
 
+app.MapStaticAssets( );
+
 app.MapRazorComponents<App>( )
 	.AddInteractiveWebAssemblyRenderMode( )
 	.AddAdditionalAssemblies(typeof(NimbleLoopWebApp.Client._Imports).Assembly);

@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 /NimbleLoopWebApp/NimbleLoopWebApp/appsettings.Development.json
 /NimbleLoopWebApp.Functions/Properties/ServiceDependencies/nimbleloopassets - Zip Deploy
+/NimbleLoopWebApp/NimbleLoopWebApp/wwwroot/.well-known/microsoft-identity-association.json
+/NimbleLoopWebApp/NimbleLoopWebApp.Client/wwwroot/appsettings.json
+/NimbleLoopWebApp/NimbleLoopWebApp.Client/wwwroot/appsettings.Development.json
