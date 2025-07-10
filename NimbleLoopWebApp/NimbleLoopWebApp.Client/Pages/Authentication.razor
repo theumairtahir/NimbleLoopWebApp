@@ -1,10 +1,9 @@
 ﻿@page "/authentication/{action}"
 @rendermode InteractiveWebAssembly
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
 @if (isLoaded)
 {
-  <RemoteAuthenticatorView Action="@Action" @rendermode="InteractiveWebAssembly" />
+  @* <RemoteAuthenticatorView Action="@Action" @rendermode="InteractiveWebAssembly" /> *@
 }
 else
 {

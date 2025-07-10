@@ -1,14 +1,13 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
-@rendermode InteractiveWebAssembly
+﻿@rendermode InteractiveWebAssembly
 @inject NavigationManager Navigation
 
-<AuthorizeView>
+@* <AuthorizeView>
   <Authorized>
     <div class="mt-4 text-center">
       <button class="btn btn-success" @onclick="NavigateToAddArticle">@ButtonText</button>
     </div>
   </Authorized>
-</AuthorizeView>
+</AuthorizeView> *@
 @code {
   [Parameter]
   public string ArticleId { get; set; } = null!;

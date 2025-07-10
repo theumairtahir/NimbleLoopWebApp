@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
 using MongoDB.Driver;
 using NimbleLoop.Domain.Entities;
 using NimbleLoopWebApp.Client.Extensions;
@@ -17,8 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents( )
 	.AddInteractiveWebAssemblyComponents( );
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-	.AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
 builder.Services.AddAuthorization( );
 
 builder.Services.AddCascadingAuthenticationState( );

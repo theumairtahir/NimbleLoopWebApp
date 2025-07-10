@@ -1,5 +1,4 @@
 ﻿@using Humanizer
-@using Microsoft.AspNetCore.Components.Authorization
 @using NimbleLoop.Domain.Entities
 @rendermode InteractiveWebAssembly
 @inject NavigationManager NavigationManager
@@ -32,7 +31,7 @@
 </div>
 
 
-<AuthorizeView>
+@* <AuthorizeView>
   <Authorized>
     <div class="add-comment-section mt-4">
       <h3>Leave a Comment</h3>
@@ -46,7 +45,7 @@
     </div>
   </NotAuthorized>
 </AuthorizeView>
-
+ *@
 
 @code {
   [Parameter]
